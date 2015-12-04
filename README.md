@@ -1,2 +1,13 @@
 # frechet-dist
-Implementation of the Fréchet distance and of the minimum path required for traversing with it
+
+A Clojure library designed to ... well, that part is up to you.
+
+## Usage
+
+FIXME
+
+## License
+
+Copyright © 2015 FIXME
+
+Distributed under the LGPL v3.
