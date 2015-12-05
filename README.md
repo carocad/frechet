@@ -13,6 +13,7 @@ A single function is provided as API. This example uses the core.matrix API
 ```Clojure
 (frechet-dist (array [[1 2] [3 4]])
               (array [[5 6] [7 8]]))
+```
 
 ## License
 
