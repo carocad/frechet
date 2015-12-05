@@ -14,6 +14,8 @@ A single function is provided as API. This example uses the core.matrix API
 (frechet-dist (array [[1 2] [3 4]])
               (array [[5 6] [7 8]]))
 ```
+The frechet-dist function returns a vector with the discrete frechet distance as the first element
+and the coupling sequence as the second element.
 
 ## License
 
