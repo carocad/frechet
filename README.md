@@ -7,6 +7,7 @@ The curves may be N-dimmensional and need not be the same length.
 Currently the point-to-point distance is calculated using the Euclidean distance.
 
 ## Usage
+[![Clojars Project](http://clojars.org/frechet-dist/latest-version.svg)](http://clojars.org/frechet-dist)
 
 A single function is provided as API. This example uses the core.matrix API
 ```Clojure
