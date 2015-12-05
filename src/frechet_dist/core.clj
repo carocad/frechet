@@ -15,12 +15,14 @@
 
 (defn frechet-dist
   "calculate the discrete frechet distance between two curves"
-  [P, Q]
+  ([P Q]
+   (frechet-dist P Q euclidean-dist))
+  ([P Q dist-fn]
   (let [length-P   (first (shape P))
         length-Q   (first (shape Q))
         CA         (matrix :vectorz (for [i (range length-P)]
                                       (for [j (range length-Q)]
-                                        (euclidean-dist (get-row P i) (get-row Q j)))))
+                                        (dist-fn (get-row P i) (get-row Q j)))))
         coupling   (loop [i (- length-P 1)
                           j (- length-Q 1)
                           path (transient [])]
@@ -37,4 +39,4 @@
                             (mget CA i (dec j)) (recur i (dec j) (conj! path [i j]))
                             (println "Wrong matrix iteration i=" i " j=" j))))]
     [(apply max (map #(mget CA (first %) (second %)) coupling)) ; frechet distance
-     coupling]))
+     coupling])))
