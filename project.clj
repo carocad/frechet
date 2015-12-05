@@ -1,6 +1,6 @@
 (defproject frechet-dist "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "Calculate the discrete Frechet distance between two polygonal curves"
+  :url "https://github.com/carocad/frechet-dist"
   :license {:name "LGPL v3"
             :url "https://raw.githubusercontent.com/carocad/frechet-dist/master/LICENSE"}
   :dependencies [[org.clojure/clojure "1.6.0"]
