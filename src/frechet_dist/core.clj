@@ -23,19 +23,17 @@
   ([P Q]
    (frechet-dist P Q euclidean-dist))
   ([P Q dist-fn]
-  (let [length-P   (first (shape P))
-        length-Q   (first (shape Q))
-        CA         (matrix :vectorz (for [i (range length-P)]
-                                      (for [j (range length-Q)]
+  (let [CA        (matrix :vectorz (for [i (range (row-count P))]
+                                      (for [j (range (row-count Q))]
                                         (dist-fn (get-row P i) (get-row Q j)))))
-        coupling   (loop [i (- length-P 1)
-                          j (- length-Q 1)
+        coupling  (loop [i (dec (row-count P))
+                         j (dec (row-count Q))
                           path (transient [])]
                      (cond
-                      (and (= i 1) (= j 1)) (reverse (persistent! (conj! path [1 1]))) ; return value
-                      (and (> i 1) (= j 1)) (recur (dec i) j (conj! path [i j]))
-                      (and (= i 1) (> j 1)) (recur i (dec j) (conj! path [i j]))
-                      (and (> i 1) (> j 1))
+                      (and (= i 0) (= j 0)) (reverse (persistent! (conj! path [0 0]))) ; return value
+                      (and (> i 0) (= j 0)) (recur (dec i) j (conj! path [i j]))
+                      (and (= i 0) (> j 0)) (recur i (dec j) (conj! path [i j]))
+                      (and (> i 0) (> j 0))
                           (condp = (apply min [(mget CA (dec i) (dec j))
                                                (mget CA (dec i) j)
                                                (mget CA i (dec j))])
