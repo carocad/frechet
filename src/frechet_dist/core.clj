@@ -4,15 +4,6 @@
             [clojure.core.matrix :refer :all]
             [clojure.core.matrix.operators :refer :all :exclude [min max]]))
 
-(defn- euclidean-dist
-  "Calculate the euclidean distance of two points in space.
-  This function works on any 1xN dimmensional vectors"
-  [u v]
-  (let [pow2 (fn [x] (math/expt x 2))]
-    (->> (map (comp pow2 -) u v)
-         (reduce +)
-         (math/sqrt))))
-
 (defn frechet-dist
   "calculate the discrete frechet distance between two curves.
   P and Q can be MxD and NxD matrixes. This means that both MUST
@@ -21,7 +12,7 @@
   dist-fn is a function to evaluate the distance between any two rows
   of P and Q. It defaults to the Euclidean distance."
   ([P Q]
-   (frechet-dist P Q euclidean-dist))
+   (frechet-dist P Q distance))
   ([P Q dist-fn]
   (let [CA        (matrix :vectorz (for [i (range (row-count P))]
                                       (for [j (range (row-count Q))]
