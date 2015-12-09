@@ -1,5 +1,5 @@
 (ns frechet-dist.core
-  (:refer-clojure :exclude [* - + /  == <= >= not= ]) ;max has a bug. Waiting for fix in core.matrix
+  (:refer-clojure :exclude [* - + /  == <= >= not= ])
   (:require [clojure.math.numeric-tower :as math]
             [clojure.core.matrix :refer :all]
             [clojure.core.matrix.operators :refer :all :exclude [min max]]))
@@ -38,6 +38,33 @@
             (recur (inc i) (reduce #(conj! %1 %2) output (re-sample Pi Pj p2p-dist epsilon)))
             (recur (inc i) (conj! output Pi)))))))))
 
+(defn- dist-matrix
+  "calculate the point to point distance among all possible combinations
+  of P and Q elements. The distance is calculated using dist-fn"
+  [P Q dist-fn]
+  (matrix :vectorz (for [i (range (row-count P))]
+                     (for [j (range (row-count Q))]
+                       (dist-fn (get-row P i) (get-row Q j))))))
+
+(defn- find-sequence
+  "Given a point2point distance matrix CA find the path enclosed by the limits
+  i-start j-start i-end j-end that minimizes the distance between the two
+  curves from which CA was created."
+  [CA i-start j-start i-end j-end]
+  (loop [i i-end
+         j j-end
+         path (transient [])]
+    (cond
+     (and (= i i-start) (= j j-start)) (reverse (persistent! (conj! path [i-start j-start]))) ; return value
+     (and (> i i-start) (= j j-start)) (recur (dec i) j (conj! path [i j]))
+     (and (= i i-start) (> j j-start)) (recur i (dec j) (conj! path [i j]))
+     (and (> i i-start) (> j j-start))
+       (condp = (min (mget CA (dec i) (dec j))
+                     (mget CA (dec i) j)
+                     (mget CA i (dec j)))
+         (mget CA (dec i) (dec j)) (recur (dec i) (dec j) (conj! path [i j]))
+         (mget CA (dec i) j) (recur (dec i) j (conj! path [i j]))
+         (mget CA i (dec j)) (recur i (dec j) (conj! path [i j]))))))
 
 (defn frechet-dist
   "calculate the discrete frechet distance between two curves.
@@ -49,22 +76,7 @@
   ([P Q]
    (frechet-dist P Q distance))
   ([P Q dist-fn]
-  (let [CA        (matrix :vectorz (for [i (range (row-count P))]
-                                      (for [j (range (row-count Q))]
-                                        (dist-fn (get-row P i) (get-row Q j)))))
-        coupling  (loop [i (dec (row-count P))
-                         j (dec (row-count Q))
-                          path (transient [])]
-                     (cond
-                      (and (= i 0) (= j 0)) (reverse (persistent! (conj! path [0 0]))) ; return value
-                      (and (> i 0) (= j 0)) (recur (dec i) j (conj! path [i j]))
-                      (and (= i 0) (> j 0)) (recur i (dec j) (conj! path [i j]))
-                      (and (> i 0) (> j 0))
-                          (condp = (apply min [(mget CA (dec i) (dec j))
-                                               (mget CA (dec i) j)
-                                               (mget CA i (dec j))])
-                            (mget CA (dec i) (dec j)) (recur (dec i) (dec j) (conj! path [i j]))
-                            (mget CA (dec i) j) (recur (dec i) j (conj! path [i j]))
-                            (mget CA i (dec j)) (recur i (dec j) (conj! path [i j])))))]
-    [(apply max (map #(mget CA (first %) (second %)) coupling)) ; frechet distance
-     coupling])))
+  (let [CA        (dist-matrix P Q dist-fn)
+        coupling  (find-sequence CA 0 0 (dec (row-count P)) (dec (row-count Q)))]
+     ; frechet distance
+    [(emax (map #(apply mget CA %) coupling)) coupling])))
