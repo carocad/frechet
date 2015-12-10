@@ -1,8 +1,6 @@
 (ns frechet-dist.sampler
-  (:refer-clojure :exclude [- + *])
   (:require [clojure.math.numeric-tower :as math]
-            [clojure.core.matrix :refer [matrix get-row row-count distance]]
-            [clojure.core.matrix.operators :refer [- + *]]))
+            [clojure.core.matrix :refer [matrix get-row row-count distance sub add mul div]]))
 
 (defn- over-threshold?
   [dist epsilon]
@@ -13,9 +11,9 @@
   to ensure a distance lower than twice epsilon between two points."
   [pi pj p2p-dist epsilon]
   (let [n-times  (math/ceil (/ p2p-dist epsilon)) ; number of subintervals to insert
-        deltap   (/ (- pj pi) n-times)] ; size of each interval
+        deltap   (div (sub pj pi) n-times)] ; size of each interval
     (for [a (range n-times)]
-      (+ pi (* a deltap)))))
+      (add pi (mul a deltap)))))
 
 (defn refine
   "refine curve P so that the distance between any two consecutive points is

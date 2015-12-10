@@ -26,6 +26,8 @@
         curr-bounds))))
 
 (defn relax-boundaries
+  "iteratively find new boundaries for CA such that the frechet distance is
+  lower inside this boundaries than if they were included"
   [CA]
   (loop [curr-bounds     [0 0 (dec (first (shape CA))) (dec (second (shape CA)))]]
     ;the boundary optimizations become more expensive as the number of samples increase
