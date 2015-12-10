@@ -1,21 +1,18 @@
 (ns frechet-dist.core
-  (:require [clojure.core.matrix :refer [matrix row-count mget distance emax pm]]
-            [frechet-dist.utils :refer [delimiter max-leash opt-bounds]]
-            [frechet-dist.shared :refer [dist-matrix find-sequence]] :reload))
+  (:require [clojure.core.matrix :refer [matrix row-count mget distance]]
+            [frechet-dist.partial :refer [relax-boundaries]]
+            [frechet-dist.shared :refer [max-leash dist-matrix find-sequence]] :reload))
 
 (defn partial-frechet-dist
+  "compute the partial frechet distance among P and Q. The partial distance is
+  calculated as the frechet distance among R and T, where R and T are R and T
+  are the longest continous subcurves from P and Q that minimize the frechet
+  distance."
   ([P Q]
    (partial-frechet-dist P Q distance))
   ([P Q dist-fn]
    (let [CA        (dist-matrix P Q dist-fn)
-         size      [0 0 (dec (row-count P)) (dec (row-count Q))]
-         ;_              (pm CA)
-         limits    (->> (opt-bounds CA (delimiter :right) size)
-                        (opt-bounds CA (delimiter :left))
-                        (opt-bounds CA (delimiter :top))
-                        (opt-bounds CA (delimiter :bottom)))
-;NOTE This iteration could be done several times until no change happens
-;currently the bound changes don't reflect back on the previous bound optimizations
+         limits    (relax-boundaries CA)
          coupling  (find-sequence CA limits)
          min-leash (max-leash CA coupling)]
      [min-leash coupling])))
