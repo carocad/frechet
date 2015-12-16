@@ -30,3 +30,4 @@
   (let [[dist CA]  (dist-matrix P Q dist-fn)
         coupling   (find-sequence CA [0 0 (dec (row-count P)) (dec (row-count Q))])]
     [dist coupling])))
+
