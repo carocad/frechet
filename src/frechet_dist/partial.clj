@@ -2,7 +2,7 @@
   (:require [clojure.core.matrix :refer [shape]]
             [frechet-dist.shared :refer [max-leash find-sequence dist-matrix]]))
 
-(defn delimiter
+(defn- delimiter
   "create a function which will return the bounding parameters with which
   the coupling sequence and frechet distance of two curves P and Q will
   be calculated."
@@ -13,7 +13,7 @@
     :bottom (fn [[is js ie je]] [is       js       (dec ie)   je])
     :top    (fn [[is js ie je]] [(inc is) js       ie         je])))
 
-(defn opt-bounds
+(defn- opt-bounds
   "optimize the boundaries of CA according to the move strategy such that the
   frechet distance is minimize"
   [CA move limits]
@@ -40,3 +40,9 @@
       (if (not= curr-bounds new-bounds)
         (recur new-bounds)
         curr-bounds))))
+
+;BUG currently this way of finding the minimum frechet distance is wrong as it
+; is doesn't take into account the bug fix of the distance matrix CA !!
+; Instead the frechet distance MUST be calculated at every iteration, this can
+; preferably be done using a simple point to point distance matrix and creating
+; new CA matrices such that the frechet distance can be calculated from it

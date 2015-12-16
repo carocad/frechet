@@ -11,10 +11,10 @@
   ([P Q]
    (partial-frechet-dist P Q distance))
   ([P Q dist-fn]
-   (let [CA        (dist-matrix P Q dist-fn)
-         limits    (relax-boundaries CA)
-         coupling  (find-sequence CA limits)
-         min-leash (max-leash CA coupling)]
+   (let [[dist CA]   (dist-matrix P Q dist-fn)
+         limits      (relax-boundaries CA)
+         coupling    (find-sequence CA limits)
+         min-leash   (max-leash CA coupling)]
      [min-leash coupling])))
 
 (defn frechet-dist
@@ -27,7 +27,6 @@
   ([P Q]
    (frechet-dist P Q distance))
   ([P Q dist-fn]
-  (let [CA        (dist-matrix P Q dist-fn)
-        coupling  (find-sequence CA [0 0 (dec (row-count P)) (dec (row-count Q))])
-        leash     (max-leash CA coupling)]
-    [leash coupling])))
+  (let [[dist CA]  (dist-matrix P Q dist-fn)
+        coupling   (find-sequence CA [0 0 (dec (row-count P)) (dec (row-count Q))])]
+    [dist coupling])))
