@@ -24,8 +24,7 @@ It is also possible to compute the partial discrete frechet distance between two
 ; [0.5 ([0 0] [1 1])]
 ```
 
-Additionally, it is also possible to re-sample the curves in case you might want to improve the precision of the calculation. The *refine* function resides in the *frechet-dist.sampler* namespace. Currently it is necessary to use the core.matrix vectorz implementation to use this function.
-
+Additionally, it is also possible to re-sample the curves in case you might want to improve the precision of the calculation. The *refine* function resides in the *frechet-dist.sampler* namespace.
 ```Clojure
 (refine (matrix :vectorz [[0 3] [0 4] [0 5]]) 0.5)
 ;[[0.0 3.0] [0.0 3.25] [0.0 3.5] [0.0 3.75] [0.0 4.0] [0.0 4.25] [0.0 4.5] [0.0 4.75] [0.0 5.0]]
