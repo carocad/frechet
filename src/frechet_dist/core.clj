@@ -1,7 +1,7 @@
 (ns frechet-dist.core
-  (:require [clojure.core.matrix :refer [matrix row-count mget distance]]
+  (:require [clojure.core.matrix :refer [row-count distance]]
             [frechet-dist.partial :refer [relax-boundaries]]
-            [frechet-dist.shared :refer [max-leash dist-matrix find-sequence]] :reload))
+            [frechet-dist.shared :refer [link-matrix find-sequence point-distance]] :reload))
 
 (defn partial-frechet-dist
   "compute the partial frechet distance among P and Q. The partial distance is
@@ -11,11 +11,12 @@
   ([P Q]
    (partial-frechet-dist P Q distance))
   ([P Q dist-fn]
-   (let [[dist CA]   (dist-matrix P Q dist-fn)
+   (let [p2p-dist    (point-distance P Q dist-fn)
+         init-lim    [0 0 (row-count P) (row-count Q)]
+         [dist CA]   (link-matrix p2p-dist init-lim)
          limits      (relax-boundaries CA)
-         coupling    (find-sequence CA limits)
-         min-leash   (max-leash CA coupling)]
-     [min-leash coupling])))
+         coupling    (find-sequence CA limits)]
+     [dist coupling])))
 
 (defn frechet-dist
   "calculate the discrete frechet distance between two curves.
@@ -27,7 +28,8 @@
   ([P Q]
    (frechet-dist P Q distance))
   ([P Q dist-fn]
-  (let [[dist CA]  (dist-matrix P Q dist-fn)
-        coupling   (find-sequence CA [0 0 (dec (row-count P)) (dec (row-count Q))])]
+  (let [p2p-dist   (point-distance P Q dist-fn)
+        limits     [0 0 (row-count P) (row-count Q)]
+        [dist CA]  (link-matrix p2p-dist limits)
+        coupling   (find-sequence CA limits)]
     [dist coupling])))
-

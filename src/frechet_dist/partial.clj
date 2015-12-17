@@ -1,6 +1,6 @@
 (ns frechet-dist.partial
   (:require [clojure.core.matrix :refer [shape]]
-            [frechet-dist.shared :refer [max-leash find-sequence dist-matrix]]))
+            [frechet-dist.shared :refer [max-leash find-sequence]]))
 
 (defn- delimiter
   "create a function which will return the bounding parameters with which

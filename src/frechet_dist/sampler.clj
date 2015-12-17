@@ -1,6 +1,6 @@
 (ns frechet-dist.sampler
   (:require [clojure.math.numeric-tower :as math]
-            [clojure.core.matrix :refer [matrix get-row row-count distance sub add mul div]]))
+            [clojure.core.matrix :refer [get-row row-count distance sub add mul div]]))
 
 (defn- over-threshold?
   [dist epsilon]
