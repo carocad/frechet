@@ -21,7 +21,7 @@
   100; tries
   (prop/for-all [P curve
                  Q curve]
-  (= (first (frechet-dist P Q)) (first (frechet-dist Q P)))))
+    (= (first (frechet-dist P Q)) (first (frechet-dist Q P)))))
 ;(tc/quick-check 100 simmetry-property)
 
 ; The frechet distance is a true metric, thus the triangle-innequality
@@ -29,11 +29,11 @@
 ; Ddf(P,Q) <= Ddf(P,R) + Ddf(R,Q)
 (defspec triangle-innequality
   100; tries
-  (prop/for-all [P curve
-                 Q curve
-                 R curve]
-  (<= (first (frechet-dist P Q)) (+ (first (frechet-dist P R))
-                                    (first (frechet-dist R Q))))))
+    (prop/for-all [P curve
+                   Q curve
+                   R curve]
+      (<= (first (frechet-dist P Q)) (+ (first (frechet-dist P R))
+                                        (first (frechet-dist R Q))))))
 ;(tc/quick-check 100 triangle-innequality)
 
 ; Neither the 'dog' nor the 'man' are able to backtrace on the path they follow
@@ -43,8 +43,8 @@
   100; tries
   (prop/for-all [P curve
                  Q curve]
-  (and (apply <= (map first (second (frechet-dist P Q))))
-       (apply <= (map second (second (frechet-dist P Q)))))))
+    (and (apply <= (map first (second (frechet-dist P Q))))
+         (apply <= (map second (second (frechet-dist P Q)))))))
 ;(tc/quick-check 100 monotonicity-property)
 
 ; If the distance of two curves is 0, then the two curves are the same
@@ -52,7 +52,7 @@
 (defspec equality-property
   100; tries
   (prop/for-all [P curve]
-  (= (first (frechet-dist P P)) 0.0)))
+    (= (first (frechet-dist P P)) 0.0)))
 ;(tc/quick-check 100 equality-property)
 
 ; The coupling sequence MUST be such that the first and the last elements
@@ -62,6 +62,6 @@
   100; tries
   (prop/for-all [P curve
                  Q curve]
-  (and (= (first (second (frechet-dist P Q))) [0 0])
-       (= (last  (second (frechet-dist P Q))) [(dec (row-count P)) (dec (row-count Q))]))))
+    (and (= (first (second (frechet-dist P Q))) [0 0])
+         (= (last  (second (frechet-dist P Q))) [(dec (row-count P)) (dec (row-count Q))]))))
 ;(tc/quick-check 100 boundaries-condition)
