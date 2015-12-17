@@ -1,5 +1,5 @@
 (ns frechet-dist.core
-  (:require [clojure.core.matrix :refer [row-count distance]]
+  (:require [clojure.core.matrix :refer [distance]]
             [frechet-dist.partial :refer [relax-boundaries]]
             [frechet-dist.shared :refer [link-matrix find-sequence point-distance]] :reload))
 
@@ -11,11 +11,10 @@
   ([P Q]
    (partial-frechet-dist P Q distance))
   ([P Q dist-fn]
-   (let [p2p-dist    (point-distance P Q dist-fn)
-         init-lim    [0 0 (row-count P) (row-count Q)]
-         [dist CA]   (link-matrix p2p-dist init-lim)
-         limits      (relax-boundaries CA)
-         coupling    (find-sequence CA limits)]
+   (let [p2p-dist      (point-distance P Q dist-fn)
+         limits        (relax-boundaries p2p-dist)
+         [dist CA]     (link-matrix p2p-dist limits)
+         coupling      (find-sequence CA limits)]
      [dist coupling])))
 
 (defn frechet-dist
@@ -29,7 +28,6 @@
    (frechet-dist P Q distance))
   ([P Q dist-fn]
   (let [p2p-dist   (point-distance P Q dist-fn)
-        limits     [0 0 (row-count P) (row-count Q)]
-        [dist CA]  (link-matrix p2p-dist limits)
-        coupling   (find-sequence CA limits)]
+        [dist CA]  (link-matrix p2p-dist)
+        coupling   (find-sequence CA)]
     [dist coupling])))

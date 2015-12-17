@@ -1,6 +1,6 @@
 (ns frechet-dist.partial
   (:require [clojure.core.matrix :refer [shape]]
-            [frechet-dist.shared :refer [max-leash find-sequence]]))
+            [frechet-dist.shared :refer [link-matrix]]))
 
 (defn- delimiter
   "create a function which will return the bounding parameters with which
@@ -16,11 +16,11 @@
 (defn- opt-bounds
   "optimize the boundaries of CA according to the move strategy such that the
   frechet distance is minimize"
-  [CA move limits]
+  [p2p-dist move limits]
   (loop [curr-bounds    limits
-         curr-leash     (max-leash CA (find-sequence CA curr-bounds))]
+         curr-leash     (first (link-matrix p2p-dist curr-bounds))]
     (let [new-bounds    (move curr-bounds)
-          new-leash     (max-leash CA (find-sequence CA new-bounds))]
+          new-leash     (first (link-matrix p2p-dist new-bounds))]
       (if (> curr-leash new-leash)
         (recur new-bounds new-leash)
         curr-bounds))))
@@ -28,13 +28,13 @@
 (defn relax-boundaries
   "iteratively find new boundaries for CA such that the frechet distance is
   lower inside this boundaries than if they were included"
-  [CA]
-  (loop [curr-bounds     [0 0 (dec (first (shape CA))) (dec (second (shape CA)))]]
+  [p2p-dist]
+  (loop [curr-bounds     (apply conj [0 0] (shape p2p-dist))]
     ;the boundary optimizations become more expensive as the number of samples increase
-    (let [bound-right    (future (opt-bounds CA (delimiter :right) curr-bounds))
-          bound-left     (future (opt-bounds CA (delimiter :left) curr-bounds))
-          bound-top      (future (opt-bounds CA (delimiter :top) curr-bounds))
-          bound-bottom   (future (opt-bounds CA (delimiter :bottom) curr-bounds))
+    (let [bound-right    (future (opt-bounds p2p-dist (delimiter :right) curr-bounds))
+          bound-left     (future (opt-bounds p2p-dist (delimiter :left) curr-bounds))
+          bound-top      (future (opt-bounds p2p-dist (delimiter :top) curr-bounds))
+          bound-bottom   (future (opt-bounds p2p-dist (delimiter :bottom) curr-bounds))
           new-bounds     [(first @bound-top)    (second @bound-left)
                           (nth @bound-bottom 2) (nth @bound-right 3)]]
       (if (not= curr-bounds new-bounds)
