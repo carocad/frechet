@@ -40,9 +40,3 @@
       (if (not= curr-bounds new-bounds)
         (recur new-bounds)
         curr-bounds))))
-
-;BUG currently this way of finding the minimum frechet distance is wrong as it
-; is doesn't take into account the bug fix of the distance matrix CA !!
-; Instead the frechet distance MUST be calculated at every iteration, this can
-; preferably be done using a simple point to point distance matrix and creating
-; new CA matrices such that the frechet distance can be calculated from it
