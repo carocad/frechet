@@ -1,4 +1,4 @@
-(ns frechet-dist.core-test
+(ns frechet-dist.partial-test
   (:require [frechet-dist.core :refer [partial-frechet-dist]]
             [clojure.core.matrix :refer [row-count]]
             [clojure.test.check :as tc]
@@ -16,14 +16,14 @@
 (comment
   In general the partial Frechét distance is the Frechet distance applied
   to two subcurves taken from the original curves. Thus all the properties
-  of the Frechet distance apply except the boundary conditions)
+  of the Frechet distance apply\; except the boundary conditions)
 
 
 ; -------------------------------------------------------------------
 ; The frechet distance is simmetric, thus the order of the comparison
 ; doesn't matter for any two curves
 ; Ddf(P,Q) = Ddf(Q, P)
-(defspec simmetry-property
+(defspec partial-simmetry
   100; tries
   (prop/for-all [P curve
                  Q curve]
@@ -35,7 +35,7 @@
 ; The frechet distance is a true metric, thus the triangle-innequality
 ; holds for any 3 curves
 ; Ddf(P,Q) <= Ddf(P,R) + Ddf(R,Q)
-(defspec triangle-innequality
+(defspec partial-triangle-innequality
   100; tries
   (prop/for-all [P curve
                  Q curve
@@ -49,7 +49,7 @@
 ; Neither the 'dog' nor the 'man' are able to backtrace on the path they follow
 ; thus the coupling sequence must be monotonically increasing
 ; for example: ([0 0] [0 1] [1 1] [1 2])
-(defspec monotonicity-property
+(defspec partial-monotonicity
   100; tries
   (prop/for-all [P curve
                  Q curve]
@@ -62,7 +62,7 @@
 ; -------------------------------------------------------------------
 ; If the distance of two curves is 0, then the two curves are the same
 ; Ddf(P,Q) = 0 if P = Q
-(defspec equality-property
+(defspec partial-equality
   100; tries
   (prop/for-all [P curve]
     (= (first (partial-frechet-dist P P)) 0.0)))
