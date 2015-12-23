@@ -1,19 +1,13 @@
 (ns frechet-dist.shared
-  (:require [clojure.core.matrix :refer [get-row row-count mget emax
-                                         mset! compute-matrix shape]]))
-
-(defn max-leash
-  "base on the distance matrix CA find the maximum distance using the provided
-  coupling sequence"
-  [CA coupling]
-  (emax (map #(apply mget CA %) coupling)))
+  (:require [clojure.core.matrix :refer [get-row row-count mget mset!
+                                         compute-matrix shape immutable]]))
 
 (defn point-distance
   "computes the distance between all the possible point combinations of the two
   curves P and Q using the dist-fn"
   [P Q dist-fn]
-  (compute-matrix :vectorz [(row-count P) (row-count Q)]
-                  (fn [i j] (dist-fn (get-row P i) (get-row Q j)))))
+  (immutable (compute-matrix :vectorz [(row-count P) (row-count Q)]
+                             (fn [i j] (dist-fn (get-row P i) (get-row Q j))))))
 
 (defn find-sequence
   "Given a point2point distance matrix CA find the path enclosed by the limits
@@ -61,4 +55,4 @@
                      (mget CA i j))
         ;shape is 1-indexed but mget is zero-indexed
         dist       (cd-fn (dec i-end) (dec j-end))]
-    [dist CA])))
+    [dist (immutable CA)])))
