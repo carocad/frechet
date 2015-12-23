@@ -1,6 +1,5 @@
 (ns frechet-dist.core-test
-  (:require [frechet-dist.core :refer [frechet-dist partial-frechet-dist]]
-            [frechet-dist.sampler :refer [refine]]
+  (:require [frechet-dist.core :refer [frechet-dist]]
             [clojure.core.matrix :refer [row-count]]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
