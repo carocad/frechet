@@ -2,6 +2,14 @@
   (:require [clojure.core.matrix :refer [shape]]
             [frechet-dist.shared :refer [link-matrix]]))
 
+(defn- invalid-bounds?
+  "check if the current bounds are valid. Valid bounds are such that the curve
+  is reduced to a minimum of two points"
+  [[is js ie je]]
+  (if (or (> (- ie is) 1) (> (- je js) 1))
+    true
+    false))
+
 (defn- delimiter
   "create a function which will return the bounding parameters with which
   the coupling sequence and frechet distance of two curves P and Q will
@@ -21,7 +29,7 @@
          curr-leash     (first (link-matrix p2p-dist curr-bounds))]
     (let [new-bounds    (move curr-bounds)
           new-leash     (first (link-matrix p2p-dist new-bounds))]
-      (if (> curr-leash new-leash)
+      (if (and (not (invalid-bounds? curr-bounds)) (> curr-leash new-leash))
         (recur new-bounds new-leash)
         curr-bounds))))
 
