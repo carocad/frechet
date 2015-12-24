@@ -30,4 +30,4 @@
                         (list (get-row P index))))
          sampled-P  (map-indexed sampler pij-dist)]
      (conj (into [] (apply concat sampled-P))
-           (last P)))))
+           (peek P)))))
