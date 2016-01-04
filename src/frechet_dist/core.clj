@@ -1,7 +1,7 @@
 (ns frechet-dist.core
   (:require [clojure.core.matrix :refer [distance]]
             [frechet-dist.partial :refer [relax-boundaries]]
-            [frechet-dist.shared :refer [link-matrix find-sequence point-distance]] :reload))
+            [frechet-dist.shared :refer [link-matrix find-sequence point-distance]]))
 
 (defn frechet-dist
   "calculate the discrete frechet distance between two curves.
