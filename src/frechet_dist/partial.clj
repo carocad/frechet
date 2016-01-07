@@ -2,12 +2,12 @@
   (:require [clojure.core.matrix :refer [shape]]
             [frechet-dist.shared :refer [link-matrix]]))
 
-(defn- invalid-bounds?
+(defn- valid-bounds?
   "check if the current bounds are valid. Valid bounds are such that the curve
   is reduced to a minimum of two points"
   [[is js ie je]]
-  (if (or (> (- ie is) 1) (> (- je js) 1))
-    true
+  (if (and (>= (- ie is) 2) (>= (- je js) 2))
+    [is js ie je]
     false))
 
 (defn- delimiter
@@ -27,11 +27,12 @@
   [p2p-dist move limits]
   (loop [curr-bounds    limits
          curr-leash     (first (link-matrix p2p-dist curr-bounds))]
-    (let [new-bounds    (move curr-bounds)
-          new-leash     (first (link-matrix p2p-dist new-bounds))]
-      (if (and (not (invalid-bounds? curr-bounds)) (> curr-leash new-leash))
-        (recur new-bounds new-leash)
-        curr-bounds))))
+    (if-let [new-bounds (valid-bounds? (move curr-bounds))]
+      (let  [new-leash  (first (link-matrix p2p-dist new-bounds))]
+        (if (> curr-leash new-leash)
+          (recur new-bounds new-leash)
+          curr-bounds))
+        curr-bounds)))
 
 (defn relax-boundaries
   "iteratively find new boundaries for CA such that the frechet distance is
@@ -42,9 +43,9 @@
     (let [bound-right    (future (opt-bounds p2p-dist (delimiter :right) curr-bounds))
           bound-left     (future (opt-bounds p2p-dist (delimiter :left) curr-bounds))
           bound-top      (future (opt-bounds p2p-dist (delimiter :top) curr-bounds))
-          bound-bottom   (future (opt-bounds p2p-dist (delimiter :bottom) curr-bounds))
+          bound-bottom   (opt-bounds p2p-dist (delimiter :bottom) curr-bounds)
           new-bounds     [(first @bound-top)    (second @bound-left)
-                          (nth @bound-bottom 2) (nth @bound-right 3)]]
+                          (nth bound-bottom 2) (nth @bound-right 3)]]
       (if (not= curr-bounds new-bounds)
         (recur new-bounds)
         curr-bounds))))

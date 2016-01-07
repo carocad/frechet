@@ -28,22 +28,14 @@
   (prop/for-all [P curve
                  Q curve]
     (= (first (partial-frechet-dist P Q)) (first (partial-frechet-dist Q P)))))
-;(tc/quick-check 100 simmetry-property)
+;(tc/quick-check 100 partial-simmetry)
 
 
 ; -------------------------------------------------------------------
-; The frechet distance is a true metric, thus the triangle-innequality
-; holds for any 3 curves
-; Ddf(P,Q) <= Ddf(P,R) + Ddf(R,Q)
-(defspec partial-triangle-innequality
-  100; tries
-  (prop/for-all [P curve
-                 Q curve
-                 R curve]
-    (<= (first (partial-frechet-dist P Q)) (+ (first (partial-frechet-dist P R))
-                                              (first (partial-frechet-dist R Q))))))
-;(tc/quick-check 100 triangle-innequality)
-
+(comment The partial frechet distance is NOT a true metric, thus the triangle innequality
+ does not hold. This is due to the fact that the part of the curves that matches
+ and from which the distance is extracted, are not necessarily the same for the
+ three comparisons.)
 
 ; -------------------------------------------------------------------
 ; Neither the 'dog' nor the 'man' are able to backtrace on the path they follow
@@ -69,12 +61,5 @@
 ;(tc/quick-check 100 equality-property)
 
 
-; -------------------------------------------------------------------
-; NOTE: The boundary condition is not fulfilled in the partial discrete Frechet
-;       distance since the boundaries are relaxed.
-(comment
-(def boundaries-condition
-  (prop/for-all [P curve
-                 Q curve]
-    (and (= (first (second (frechet-dist P Q))) [0 0])
-         (= (last  (second (frechet-dist P Q))) [(dec (row-count P)) (dec (row-count Q))])))))
+(comment The boundary condition is not fulfilled in the partial discrete Frechet
+  distance since the boundaries are relaxed)

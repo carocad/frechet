@@ -22,7 +22,7 @@
   "compute the partial frechet distance among P and Q. The partial distance is
   calculated as the frechet distance among R and T, where R and T are R and T
   are the longest continous subcurves from P and Q that minimize the frechet
-  distance."
+  distance"
   ([P Q]
    (partial-frechet-dist P Q distance))
   ([P Q dist-fn]
