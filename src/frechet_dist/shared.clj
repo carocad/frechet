@@ -2,6 +2,11 @@
   (:require [clojure.core.matrix :refer [get-row row-count mget mset!
                                          compute-matrix shape immutable]]))
 
+(defn bounds
+  "compute the get-bounds of a matrix (mtx) taking into account that mget is
+  zero indexed"
+  [mtx] (apply conj [0 0] (mapv dec (shape mtx))))
+
 (defn point-distance
   "computes the distance between all the possible point combinations of the two
   curves P and Q using the dist-fn"
@@ -14,10 +19,10 @@
   i-start j-start i-end j-end that minimizes the distance between the two
   curves from which CA was created."
   ([CA]
-   (find-sequence CA (apply conj [0 0] (shape CA))))
+   (find-sequence CA (bounds CA)))
   ([CA [i-start j-start i-end j-end]]
-  (loop [i (dec i-end)
-         j (dec j-end)
+  (loop [i i-end
+         j j-end
          path (transient [])]
     (cond
      (and (= i i-start) (= j j-start)) (reverse (persistent! (conj! path [i-start j-start]))) ; return value
@@ -37,11 +42,12 @@
   of the curves P and Q using dist-fn. The discrete frechet distance is
   returned along the coupling sequence."
   ([p2p-dist]
-   (link-matrix p2p-dist (apply conj [0 0] (shape p2p-dist))))
+   (link-matrix p2p-dist (bounds p2p-dist)))
   ([p2p-dist [i-start j-start i-end j-end]]
    ;NOTE: the size of the matrix is kept equal to p2p-dist matrix in order
   ; to get the right index for the coupling sequence when the limits passed
   (let [CA         (compute-matrix :vectorz (shape p2p-dist) (fn [i j] -1))
+                                            ;shape is 1-indexed but mget is zero-indexed
         cd-fn      (fn cd [i j] ;cd : calculate distance
                      (cond
                       (> (mget CA i j) -1) :default ; do nothing
@@ -53,6 +59,5 @@
                                                                                 (cd i (dec j)))
                                                                            (mget p2p-dist i j))))
                      (mget CA i j))
-        ;shape is 1-indexed but mget is zero-indexed
-        dist       (cd-fn (dec i-end) (dec j-end))]
+        dist       (cd-fn i-end j-end)]
     [dist (immutable CA)])))

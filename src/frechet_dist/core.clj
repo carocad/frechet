@@ -1,6 +1,6 @@
 (ns frechet-dist.core
   (:require [clojure.core.matrix :refer [distance]]
-            [frechet-dist.partial :refer [relax-boundaries]]
+            [frechet-dist.partial :refer [find-boundaries valid-bounds? product]]
             [frechet-dist.shared :refer [link-matrix find-sequence point-distance]]))
 
 (defn frechet-dist
@@ -27,7 +27,11 @@
    (partial-frechet-dist P Q distance))
   ([P Q dist-fn]
    (let [p2p-dist      (point-distance P Q dist-fn)
-         limits        (relax-boundaries p2p-dist)
-         [dist CA]     (link-matrix p2p-dist limits)
-         coupling      (find-sequence CA limits)]
-     [dist coupling])))
+         [starts ends] (find-boundaries p2p-dist)
+         bounds        (filter valid-bounds? (map #(apply concat %) (product starts ends)))
+         frechets      (for [limit bounds]
+                         [limit (link-matrix p2p-dist limit)])
+         min-frecht    (apply min-key #(first (second %)) frechets)
+         coupling      (find-sequence (second (second min-frecht))
+                                      (first min-frecht))]
+     [(first (second min-frecht)) coupling])))
