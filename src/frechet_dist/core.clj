@@ -14,9 +14,9 @@
    (frechet-dist P Q distance))
   ([P Q dist-fn]
   (let [p2p-dist   (point-distance P Q dist-fn)
-        [dist CA]  (link-matrix p2p-dist)
-        coupling   (find-sequence CA)]
-    [dist coupling])))
+        link       (link-matrix p2p-dist)
+        coupling   (find-sequence (:CA link))]
+    {:dist (:dist link) :couple coupling})))
 
 (defn partial-frechet-dist
   "compute the partial frechet distance among P and Q. The partial distance is
@@ -30,8 +30,7 @@
          [starts ends] (find-boundaries p2p-dist)
          bounds        (filter valid-bounds? (map #(apply concat %) (product starts ends)))
          frechets      (for [limit bounds]
-                         [limit (link-matrix p2p-dist limit)])
-         min-frecht    (apply min-key #(first (second %)) frechets)
-         coupling      (find-sequence (second (second min-frecht))
-                                      (first min-frecht))]
-     [(first (second min-frecht)) coupling])))
+                         (into {:bounds limit} (link-matrix p2p-dist limit)))
+         min-frecht    (apply min-key :dist frechets)
+         coupling      (find-sequence (:CA min-frecht) (:bounds min-frecht))]
+     {:dist (:dist min-frecht) :couple coupling})))

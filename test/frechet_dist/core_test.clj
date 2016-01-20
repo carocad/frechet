@@ -1,7 +1,6 @@
 (ns frechet-dist.core-test
   (:require [frechet-dist.core :refer [frechet-dist]]
-            [clojure.core.matrix :refer [row-count]]
-            [clojure.test.check :as tc]
+            ;[clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop]
             [clojure.test.check.clojure-test :refer [defspec]]))
@@ -13,6 +12,8 @@
 ; a curve is a collection of 2 or more points
 (def curve     (gen/vector point 2 20))
 
+(def last-index (comp dec count))
+
 
 ; -------------------------------------------------------------------
 ; The frechet distance is simmetric, thus the order of the comparison
@@ -22,7 +23,7 @@
   100; tries
   (prop/for-all [P curve
                  Q curve]
-    (= (first (frechet-dist P Q)) (first (frechet-dist Q P)))))
+    (= (:dist (frechet-dist P Q)) (:dist (frechet-dist Q P)))))
 ;(tc/quick-check 100 simmetry-property)
 
 
@@ -35,8 +36,8 @@
     (prop/for-all [P curve
                    Q curve
                    R curve]
-      (<= (first (frechet-dist P Q)) (+ (first (frechet-dist P R))
-                                        (first (frechet-dist R Q))))))
+      (<= (:dist (frechet-dist P Q)) (+ (:dist (frechet-dist P R))
+                                        (:dist (frechet-dist R Q))))))
 ;(tc/quick-check 100 triangle-innequality)
 
 
@@ -48,8 +49,9 @@
   100; tries
   (prop/for-all [P curve
                  Q curve]
-    (and (apply <= (map first (second (frechet-dist P Q))))
-         (apply <= (map second (second (frechet-dist P Q)))))))
+    (let [frechet     (frechet-dist P Q)]
+      (and (apply <= (map first (:couple frechet)))
+           (apply <= (map second (:couple frechet)))))))
 ;(tc/quick-check 100 monotonicity-property)
 
 
@@ -59,7 +61,7 @@
 (defspec equality-property
   100; tries
   (prop/for-all [P curve]
-    (= (first (frechet-dist P P)) 0.0)))
+    (= (:dist (frechet-dist P P)) 0.0)))
 ;(tc/quick-check 100 equality-property)
 
 
@@ -71,6 +73,6 @@
   100; tries
   (prop/for-all [P curve
                  Q curve]
-    (and (= (first (second (frechet-dist P Q))) [0 0])
-         (= (last  (second (frechet-dist P Q))) [(dec (row-count P)) (dec (row-count Q))]))))
+    (and (= (first (:couple (frechet-dist P Q))) [0 0])
+         (= (last  (:couple (frechet-dist P Q))) [(last-index P) (last-index Q)]))))
 ;(tc/quick-check 100 boundaries-condition)

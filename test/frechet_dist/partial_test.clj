@@ -1,6 +1,5 @@
 (ns frechet-dist.partial-test
   (:require [frechet-dist.core :refer [partial-frechet-dist]]
-            [clojure.core.matrix :refer [row-count]]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop]
@@ -27,7 +26,7 @@
   100; tries
   (prop/for-all [P curve
                  Q curve]
-    (= (first (partial-frechet-dist P Q)) (first (partial-frechet-dist Q P)))))
+    (= (:dist (partial-frechet-dist P Q)) (:dist (partial-frechet-dist Q P)))))
 ;(tc/quick-check 100 partial-simmetry)
 
 
@@ -45,9 +44,9 @@
   100; tries
   (prop/for-all [P curve
                  Q curve]
-    (let [coupling (second (partial-frechet-dist P Q))]
-      (and (apply <= (map first coupling))
-           (apply <= (map second coupling))))))
+    (let [frechet (partial-frechet-dist P Q)]
+      (and (apply <= (map first (:couple frechet)))
+           (apply <= (map second (:couple frechet)))))))
 ;(tc/quick-check 100 monotonicity-property)
 
 
@@ -57,7 +56,7 @@
 (defspec partial-equality
   100; tries
   (prop/for-all [P curve]
-    (= (first (partial-frechet-dist P P)) 0.0)))
+    (= (:dist (partial-frechet-dist P P)) 0.0)))
 ;(tc/quick-check 100 equality-property)
 
 

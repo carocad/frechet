@@ -60,4 +60,4 @@
                                                                            (mget p2p-dist i j))))
                      (mget CA i j))
         dist       (cd-fn i-end j-end)]
-    [dist (immutable CA)])))
+    {:dist dist :CA (immutable CA)})))

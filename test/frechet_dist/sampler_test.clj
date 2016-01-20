@@ -31,7 +31,7 @@
     (let [distPij     (apply max (map distance P (rest P)))
           distQij     (apply max (map distance Q (rest Q)))
           D-max       (max distPij distQij)]
-      (>= (first (frechet-dist P Q))
-          (first (frechet-dist (refine P (/ D-max 3))
+      (>= (:dist (frechet-dist P Q))
+          (:dist (frechet-dist (refine P (/ D-max 3))
                                (refine Q (/ D-max 3))))))))
 ;(tc/quick-check 1000 refinement-property)

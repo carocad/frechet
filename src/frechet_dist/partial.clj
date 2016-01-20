@@ -18,7 +18,7 @@
 (defn- nearest-point
   "find which is the nearest point to i or j based on the distances given by
   p2p-dist."
-  [p2p-dist {:keys [i j]}]
+  [p2p-dist & {:keys [i j]}]
   (cond
    (nil? i) (first (min-indexed (get-column p2p-dist j)))
    (nil? j) (first (min-indexed (get-row p2p-dist i)))))
@@ -29,11 +29,11 @@
   points are returned."
   [p2p-dist]
   (let [sdef   [0, 0]
-        si     [0 (nearest-point p2p-dist {:i 0})]
-        sj     [(nearest-point p2p-dist {:j 0}) 0]
+        si     [0 (nearest-point p2p-dist :i 0)]
+        sj     [(nearest-point p2p-dist :j 0) 0]
         edef   (subvec (bounds p2p-dist) 2)
-        ei     [(first edef) (nearest-point p2p-dist {:i (first edef)})]
-        ej     [(nearest-point p2p-dist {:j (second edef)}) (second edef)]]
+        ei     [(first edef) (nearest-point p2p-dist :i (first edef))]
+        ej     [(nearest-point p2p-dist :j (second edef)) (second edef)]]
     [(distinct [sdef si sj]) (distinct [edef ei ej])]))
 
 (defn product
