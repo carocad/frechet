@@ -37,6 +37,6 @@
           (:dist (frechet-dist (refine P (/ D-max 3))
                                (refine Q (/ D-max 3))))))))
 
-(profiler/profile :info :FRECHET (tc/quick-check 100 normal-distance))
-(profiler/profile :info :PARTIAL-FRECHET (tc/quick-check 100 partial-distance))
-(profiler/profile :info :REFINEMENT      (tc/quick-check 100 refine-distance))
+;; (profiler/profile :info :FRECHET (tc/quick-check 100 normal-distance))
+;; (profiler/profile :info :PARTIAL-FRECHET (tc/quick-check 100 partial-distance))
+;; (profiler/profile :info :REFINEMENT      (tc/quick-check 100 refine-distance))
