@@ -1,7 +1,7 @@
 (ns frechet-dist.core
-  (:require [clojure.core.matrix :refer [distance]]
-            [frechet-dist.partial :refer [find-boundaries valid-bounds? product]]
-            [frechet-dist.shared :refer [link-matrix find-sequence point-distance]]))
+  (:require [clojure.core.matrix :as matrix :refer [distance]]
+            [frechet-dist.partial :refer [find-boundaries valid-bounds? cartesian]]
+            [frechet-dist.shared :refer [link-matrix find-sequence point-distance wrap]]))
 
 (defn frechet-dist
   "calculate the discrete frechet distance between two curves.
@@ -13,7 +13,7 @@
   ([P Q]
    (frechet-dist P Q distance))
   ([P Q dist-fn]
-  (let [p2p-dist   (point-distance P Q dist-fn)
+  (let [p2p-dist   (point-distance (wrap P) (wrap Q) dist-fn)
         link       (link-matrix p2p-dist)
         coupling   (find-sequence (:CA link))]
     {:dist (:dist link) :couple coupling})))
@@ -26,11 +26,11 @@
   ([P Q]
    (partial-frechet-dist P Q distance))
   ([P Q dist-fn]
-   (let [p2p-dist      (point-distance P Q dist-fn)
+   (let [p2p-dist      (point-distance (wrap P) (wrap Q) dist-fn)
          [starts ends] (find-boundaries p2p-dist)
-         bounds        (filter valid-bounds? (map #(apply concat %) (product starts ends)))
-         frechets      (for [limit bounds]
-                         (into {:bounds limit} (link-matrix p2p-dist limit)))
+         bounds        (filter valid-bounds? (map #(apply concat %)
+                                                  (cartesian starts ends)))
+         frechets      (map #(merge {:bounds %} (link-matrix p2p-dist %)) bounds)
          min-frecht    (apply min-key :dist frechets)
          coupling      (find-sequence (:CA min-frecht) (:bounds min-frecht))]
      {:dist (:dist min-frecht) :couple coupling})))

@@ -1,18 +1,32 @@
 (ns frechet-dist.shared
-  (:require [clojure.core.matrix :refer [get-row row-count mget mset!
-                                         compute-matrix shape immutable]]))
+  (:import [mikera.matrixx AMatrix])
+  (:require [clojure.core.matrix :as matrix
+             :refer [get-row row-count mget mset! compute-matrix shape]]))
+            ;[taoensso.timbre.profiling :refer [defnp p]]))
+
+(defprotocol Matrizable
+  (wrap [coll] "convert a Clojure collection to a vectorz representation"))
+
+(extend-type AMatrix
+  Matrizable
+  (wrap [coll] coll)) ; already a matrix; nothing to do
+
+(extend-type clojure.lang.Sequential
+  Matrizable
+  (wrap [coll] (matrix/matrix :vectorz coll))) ; convert the collection to a matrix
 
 (defn bounds
   "compute the get-bounds of a matrix (mtx) taking into account that mget is
   zero indexed"
-  [mtx] (apply conj [0 0] (mapv dec (shape mtx))))
+  [mtx] (concat [0 0] (map dec (shape mtx))))
 
 (defn point-distance
   "computes the distance between all the possible point combinations of the two
   curves P and Q using the dist-fn"
   [P Q dist-fn]
-  (immutable (compute-matrix :vectorz [(row-count P) (row-count Q)]
-                             (fn [i j] (dist-fn (get-row P i) (get-row Q j))))))
+  (compute-matrix :vectorz [(row-count P) (row-count Q)]
+                  (fn [ i j] (dist-fn (get-row P i) (get-row Q j)))))
+
 
 (defn find-sequence
   "Given a point2point distance matrix CA find the path enclosed by the limits
@@ -21,21 +35,24 @@
   ([CA]
    (find-sequence CA (bounds CA)))
   ([CA [i-start j-start i-end j-end]]
-  (loop [i i-end
-         j j-end
-         path (transient [])]
-    (cond
-     (and (= i i-start) (= j j-start)) (reverse (persistent! (conj! path [i-start j-start]))) ; return value
-     (and (> i i-start) (= j j-start)) (recur (dec i) j (conj! path [i j]))
-     (and (= i i-start) (> j j-start)) (recur i (dec j) (conj! path [i j]))
-     (and (> i i-start) (> j j-start))
-       (let [diag (mget CA (dec i) (dec j))
-             left (mget CA (dec i) j)
-             top  (mget CA i (dec j))]
-         (cond
-          (and (>= left diag) (>= top diag)) (recur (dec i) (dec j) (conj! path [i j]))
-          (and (>= diag left) (>= top left)) (recur (dec i) j (conj! path [i j]))
-          (and (>= diag top) (>= left top)) (recur i (dec j) (conj! path [i j]))))))))
+   (lazy-seq
+   (loop [i i-end
+          j j-end
+          path (transient [])]
+     (let [prev-i (dec i)
+           prev-j (dec j)]
+       (cond
+         (and (> i i-start) (> j j-start))
+         (let [diag (mget CA prev-i prev-j)
+               left (mget CA prev-i j)
+               top  (mget CA i prev-j)]
+           (cond
+             (and (>= left diag) (>= top diag)) (recur prev-i prev-j (conj! path [i j]))
+             (and (>= diag left) (>= top left)) (recur prev-i j (conj! path [i j]))
+             (and (>= diag top) (>= left top)) (recur i prev-j (conj! path [i j]))))
+         (and (> i i-start) (= j j-start)) (recur prev-i j (conj! path [i j]))
+         (and (= i i-start) (> j j-start)) (recur i prev-j (conj! path [i j]))
+         (and (= i i-start) (= j j-start)) (reverse (persistent! (conj! path [i-start j-start]))))))))); return value
 
 (defn link-matrix
   "calculate the frechet distance among all possible discrete parametrization
@@ -46,18 +63,22 @@
   ([p2p-dist [i-start j-start i-end j-end]]
    ;NOTE: the size of the matrix is kept equal to p2p-dist matrix in order
   ; to get the right index for the coupling sequence when the limits passed
-  (let [CA         (compute-matrix :vectorz (shape p2p-dist) (fn [i j] -1))
-                                            ;shape is 1-indexed but mget is zero-indexed
-        cd-fn      (fn cd [i j] ;cd : calculate distance
-                     (cond
-                      (> (mget CA i j) -1) :default ; do nothing
-                      (and (= i i-start) (= j j-start)) (mset! CA i j (mget p2p-dist i-start j-start))
-                      (and (> i i-start) (= j j-start)) (mset! CA i j (max (cd (dec i) j-start) (mget p2p-dist i j-start)))
-                      (and (= i i-start) (> j j-start)) (mset! CA i j (max (cd i-start (dec j)) (mget p2p-dist i-start j)))
-                      (and (> i i-start) (> j j-start)) (mset! CA i j (max (min (cd (dec i) j)
-                                                                                (cd (dec i) (dec j))
-                                                                                (cd i (dec j)))
-                                                                           (mget p2p-dist i j))))
-                     (mget CA i j))
-        dist       (cd-fn i-end j-end)]
-    {:dist dist :CA (immutable CA)})))
+   (let [[rows columns] (shape p2p-dist)
+         CA             (matrix/new-matrix :vectorz rows columns)]
+     (dorun
+     (for [i (range i-start (inc i-end))
+           j (range j-start (inc j-end))
+      :let [prev-i (dec i)
+            prev-j (dec j)
+            value (cond
+         (and (> i i-start) (> j j-start)) (max (mget p2p-dist i j)
+                                                (min (mget CA prev-i j)
+                                                     (mget CA prev-i prev-j)
+                                                     (mget CA i prev-j)))
+         (and (> i i-start) (= j j-start)) (max (mget p2p-dist i j)
+                                                (mget CA prev-i j))
+         (and (= i i-start) (> j j-start)) (max (mget p2p-dist i-start j)
+                                                (mget CA i prev-j))
+         (and (= i i-start) (= j j-start)) (mget p2p-dist i j))]]
+       (mset! CA i j value)))
+    {:dist (mget CA i-end j-end) :CA CA})))
