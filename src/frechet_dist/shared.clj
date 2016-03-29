@@ -35,7 +35,6 @@
   ([CA]
    (find-sequence CA (bounds CA)))
   ([CA [i-start j-start i-end j-end]]
-   (lazy-seq
    (loop [i i-end
           j j-end
           path (transient [])]
@@ -52,7 +51,7 @@
              (and (>= diag top) (>= left top)) (recur i prev-j (conj! path [i j]))))
          (and (> i i-start) (= j j-start)) (recur prev-i j (conj! path [i j]))
          (and (= i i-start) (> j j-start)) (recur i prev-j (conj! path [i j]))
-         (and (= i i-start) (= j j-start)) (reverse (persistent! (conj! path [i-start j-start]))))))))); return value
+         (and (= i i-start) (= j j-start)) (reverse (persistent! (conj! path [i-start j-start]))))))))
 
 (defn link-matrix
   "calculate the frechet distance among all possible discrete parametrization
