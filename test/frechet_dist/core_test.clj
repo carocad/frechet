@@ -5,14 +5,23 @@
             [clojure.test.check.properties :as prop]
             [clojure.test.check.clojure-test :refer [defspec]]))
 
-(def dimension (gen/sample (gen/choose 2 5) 1))
+(def dimension (first (gen/sample (gen/choose 2 5))))
 ; a point is a collection of n-dimensional numbers
 (def point     (gen/vector (gen/double* {:infinite? false :NaN? false :min -100 :max 100})
-                           (first dimension)))
+                           dimension))
 ; a curve is a collection of 2 or more points
-(def curve     (gen/vector point 2 20))
+(def curve     (gen/vector point 3 20))
 
 (def last-index (comp dec count))
+
+(defn almost<=
+  "check if two numbers are almost less than or equal to. If they are less than
+  then nothing is done, otherwise the relative difference is computed and
+  compared with eps. Returns true if x is less than y or almost equal to it."
+  [eps x y]
+  (if (< x y) true ; nothing to do if they are strictly less
+    (> eps (/ (Math/abs (- x y))
+              (max (Math/abs x) (Math/abs y))))))
 
 
 ; -------------------------------------------------------------------
@@ -31,13 +40,15 @@
 ; The frechet distance is a true metric, thus the triangle-innequality
 ; holds for any 3 curves
 ; Ddf(P,Q) <= Ddf(P,R) + Ddf(R,Q)
+;; WARNING: due to the floating point precision problem of computers, it is
+;;          not possible to test strict less than but rather an approximation
 (defspec triangle-innequality
   300; tries
     (prop/for-all [P curve
                    Q curve
                    R curve]
-      (<= (:dist (frechet-dist P Q)) (+ (:dist (frechet-dist P R))
-                                        (:dist (frechet-dist R Q))))))
+      (almost<= 0.00001 (:dist (frechet-dist P Q)) (+ (:dist (frechet-dist P R))
+                                                      (:dist (frechet-dist R Q))))))
 ;(tc/quick-check 100 triangle-innequality)
 
 
