@@ -20,7 +20,7 @@
 ; doesn't matter for any two curves
 ; Ddf(P,Q) = Ddf(Q, P)
 (defspec simmetry-property
-  100; tries
+  300; tries
   (prop/for-all [P curve
                  Q curve]
     (= (:dist (frechet-dist P Q)) (:dist (frechet-dist Q P)))))
@@ -32,7 +32,7 @@
 ; holds for any 3 curves
 ; Ddf(P,Q) <= Ddf(P,R) + Ddf(R,Q)
 (defspec triangle-innequality
-  100; tries
+  300; tries
     (prop/for-all [P curve
                    Q curve
                    R curve]
@@ -46,7 +46,7 @@
 ; thus the coupling sequence must be monotonically increasing
 ; for example: ([0 0] [0 1] [1 1] [1 2])
 (defspec monotonicity-property
-  100; tries
+  300; tries
   (prop/for-all [P curve
                  Q curve]
     (let [frechet     (frechet-dist P Q)]

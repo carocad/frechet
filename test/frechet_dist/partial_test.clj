@@ -23,7 +23,7 @@
 ; doesn't matter for any two curves
 ; Ddf(P,Q) = Ddf(Q, P)
 (defspec partial-simmetry
-  100; tries
+  300; tries
   (prop/for-all [P curve
                  Q curve]
     (= (:dist (partial-frechet-dist P Q)) (:dist (partial-frechet-dist Q P)))))
