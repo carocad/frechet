@@ -3,17 +3,6 @@
              :refer [get-row row-count mget mset!]]))
             ;[taoensso.timbre.profiling :refer [defnp p]]))
 
-(defprotocol Matrizable
-  (wrap [coll] "convert a Clojure collection to a vectorz representation"))
-
-(extend-type mikera.matrixx.AMatrix
-  Matrizable
-  (wrap [coll] coll)) ; already a matrix; nothing to do
-
-(extend-type clojure.lang.Sequential
-  Matrizable
-  (wrap [coll] (matrix/matrix :vectorz coll))) ; convert the collection to a matrix
-
 (defn bound-zero
   "compute the get-bounds of a matrix (mtx) taking into account that mget is
   zero indexed"
@@ -30,7 +19,8 @@
   "mutates CA between the boundaries specified by i,j to calculate the link
   distance"
   [CA p2p-dist i-start j-start i-end j-end]
-  (dorun
+  (dorun ;; TODO: transform this into a double reduce form with an strategy similar
+         ;;       to the one used in the levenshtein distance
      (for [i (range i-start (inc i-end))
            j (range j-start (inc j-end))
       :let [prev-i (dec i)

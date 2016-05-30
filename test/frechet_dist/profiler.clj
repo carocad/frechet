@@ -1,5 +1,5 @@
 (ns frechet-dist.profiler
-  (:require [frechet-dist.core :refer [frechet-dist partial-frechet-dist]]
+  (:require [frechet-dist.core :as frechet]
             [frechet-dist.sampler :refer [refine]]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
@@ -20,12 +20,12 @@
 (def normal-distance
   (prop/for-all [P curve
                  Q curve]
-    (= (:dist (frechet-dist P Q)) (:dist (frechet-dist Q P)))))
+    (= (:dist (frechet/distance P Q)) (:dist (frechet/distance Q P)))))
 
 (def partial-distance
   (prop/for-all [P curve
                  Q curve]
-    (= (:dist (partial-frechet-dist P Q)) (:dist (partial-frechet-dist Q P)))))
+    (= (:dist (frechet/partial-distance P Q)) (:dist (frechet/partial-distance Q P)))))
 
 (def refine-distance
   (prop/for-all [P curve
@@ -33,8 +33,8 @@
     (let [distPij     (apply max (map distance P (rest P)))
           distQij     (apply max (map distance Q (rest Q)))
           D-max       (max distPij distQij)]
-      (>= (:dist (frechet-dist P Q))
-          (:dist (frechet-dist (refine P (/ D-max 3))
+      (>= (:dist (frechet/distance P Q))
+          (:dist (frechet/distance (refine P (/ D-max 3))
                                (refine Q (/ D-max 3))))))))
 
 ;; (profiler/profile :info :FRECHET (tc/quick-check 100 normal-distance))
