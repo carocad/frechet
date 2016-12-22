@@ -1,4 +1,4 @@
-(ns frechet-dist.shared
+(ns frechet-dist.legacy
   (:require [clojure.core.matrix :as matrix :refer [get-row row-count mget mset!
                                                     compute-matrix shape immutable]]))
 
@@ -6,7 +6,6 @@
   "compute the get-bounds of a matrix (mtx) taking into account that mget is
   zero indexed"
   [mtx] (apply conj [0 0] (mapv dec (shape mtx))))
-
 
 (defn- compute-columns
   [P Q dist-fn row_i]
@@ -41,21 +40,21 @@
   ([p2p-dist [i-start j-start i-end j-end]]
    ;NOTE: the size of the matrix is kept equal to p2p-dist matrix in order
   ; to get the right index for the coupling sequence when the limits passed
-  (let [CA         (compute-matrix :vectorz (shape p2p-dist) (fn [i j] -1))
+   (let [CA         (compute-matrix :vectorz (shape p2p-dist) (fn [i j] -1))
                                             ;shape is 1-indexed but mget is zero-indexed
-        cd-fn      (fn cd [i j] ;cd : calculate distance
-                     (cond
-                      (> (mget CA i j) -1) :default ; do nothing
-                      (and (= i i-start) (= j j-start)) (mset! CA i j (mget p2p-dist i-start j-start))
-                      (and (> i i-start) (= j j-start)) (mset! CA i j (max (cd (dec i) j-start) (mget p2p-dist i j-start)))
-                      (and (= i i-start) (> j j-start)) (mset! CA i j (max (cd i-start (dec j)) (mget p2p-dist i-start j)))
-                      (and (> i i-start) (> j j-start)) (mset! CA i j (max (min (cd (dec i) j)
-                                                                                (cd (dec i) (dec j))
-                                                                                (cd i (dec j)))
-                                                                           (mget p2p-dist i j))))
-                     (mget CA i j))
-        dist       (cd-fn i-end j-end)]
-    {:dist dist :CA (immutable CA)})))
+         cd-fn      (fn cd [i j] ;cd : calculate distance
+                      (cond
+                       (> (mget CA i j) -1) :default ; do nothing
+                       (and (= i i-start) (= j j-start)) (mset! CA i j (mget p2p-dist i-start j-start))
+                       (and (> i i-start) (= j j-start)) (mset! CA i j (max (cd (dec i) j-start) (mget p2p-dist i j-start)))
+                       (and (= i i-start) (> j j-start)) (mset! CA i j (max (cd i-start (dec j)) (mget p2p-dist i-start j)))
+                       (and (> i i-start) (> j j-start)) (mset! CA i j (max (min (cd (dec i) j)
+                                                                                 (cd (dec i) (dec j))
+                                                                                 (cd i (dec j)))
+                                                                            (mget p2p-dist i j))))
+                      (mget CA i j))
+         dist       (cd-fn i-end j-end)]
+     {:dist dist :CA (immutable CA)})))
 
 (defn find-sequence
   "Given a point2point distance matrix CA find the path enclosed by the limits
@@ -72,11 +71,10 @@
          (and (> i i-start) (= j j-start)) (recur (dec i) j (conj! path [i j]))
          (and (= i i-start) (> j j-start)) (recur i (dec j) (conj! path [i j]))
          (and (> i i-start) (> j j-start))
-           (let [diag (mget CA (dec i) (dec j))
-                 left (mget CA (dec i) j)
-                 top  (mget CA i (dec j))]
-           (cond
-             (and (>= left diag) (>= top diag)) (recur (dec i) (dec j) (conj! path [i j]))
-             (and (>= diag left) (>= top left)) (recur (dec i) j (conj! path [i j]))
-             (and (>= diag top) (>= left top)) (recur i (dec j) (conj! path [i j])))))))); return value
-
+         (let [diag (mget CA (dec i) (dec j))
+               left (mget CA (dec i) j)
+               top  (mget CA i (dec j))]
+          (cond
+            (and (>= left diag) (>= top diag)) (recur (dec i) (dec j) (conj! path [i j]))
+            (and (>= diag left) (>= top left)) (recur (dec i) j (conj! path [i j]))
+            (and (>= diag top) (>= left top)) (recur i (dec j) (conj! path [i j])))))))); return value

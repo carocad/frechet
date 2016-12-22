@@ -43,11 +43,11 @@
   [p2p-dist bounds]
   ;NOTE: the size of the matrix is kept equal to p2p-dist matrix in order
   ; to get the right index for the coupling sequence with the limits passed
-   (let [[rows columns]                (shape p2p-dist)
-         CA                            (new-matrix :vectorz rows columns)]
-     (for [[i-start j-start i-end j-end :as limit] bounds]
-       (do (compute-CA! CA p2p-dist i-start j-start i-end j-end); mutates CA
-           {:dist (mget CA i-end j-end) :couple (find-sequence CA limit)}))))
+  (let [[rows columns] (shape p2p-dist)
+        CA             (new-matrix :vectorz rows columns)]
+    (for [[i-start j-start i-end j-end :as limit] bounds]
+      (do (compute-CA! CA p2p-dist i-start j-start i-end j-end); mutates CA
+          {:dist (mget CA i-end j-end) :couple (find-sequence CA limit)}))))
 
 (defn cartesian
   "computes the cartesian product of two or more sequences. If only one sequence

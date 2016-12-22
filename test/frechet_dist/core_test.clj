@@ -48,7 +48,7 @@
                  Q curve
                  R curve]
                 (almost<= 0.00001 (:dist (frechet/distance P Q)) (+ (:dist (frechet/distance P R))
-                                                                (:dist (frechet/distance R Q))))))
+                                                                  (:dist (frechet/distance R Q))))))
 ;(tc/quick-check 100 triangle-innequality)
 
 

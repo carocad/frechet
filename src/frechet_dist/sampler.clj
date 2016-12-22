@@ -6,8 +6,7 @@
   "returns an interpolation between the points pi and pj rounding the
   ratio using the round function. round defaults to ceil. The results of rounding
   the ratio is the size of the returned sequence"
-  ([pi pj ratio]
-   (interpolate pi pj ratio #(Math/ceil %)))
+  ([pi pj ratio] (interpolate pi pj ratio #(Math/ceil %)))
   ([pi pj ratio round]
    (let [n-times  (round ratio) ; number of subintervals to insert
          deltap   (div (sub pj pi) n-times)] ; size of each interval
@@ -20,8 +19,7 @@
   approximations of the Frechet distance via the discrete frechet distance,i.e.
   the discrete frechet distance converge to the frechet distance for better
   sampled curves"
-  ([P epsilon]
-   (refine P epsilon distance))
+  ([P epsilon] (refine P epsilon distance))
   ([P epsilon dist-fn]
    (let [pij-dist   (map dist-fn P (rest P))
          sampler    (fn [index dist]
