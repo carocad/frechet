@@ -1,1 +1,5 @@
+
 language: clojure
+# check that it compiles && run linters && run tests
+# stop if any of them fails
+script: lein do clean, compile, check, eastwood, test

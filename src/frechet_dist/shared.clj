@@ -23,18 +23,18 @@
          ;;       to the one used in the levenshtein distance
      (for [i (range i-start (inc i-end))
            j (range j-start (inc j-end))
-      :let [prev-i (dec i)
-            prev-j (dec j)
-            value (cond
-         (and (> i i-start) (> j j-start)) (max (mget p2p-dist i j)
-                                                (min (mget CA prev-i j)
-                                                     (mget CA prev-i prev-j)
-                                                     (mget CA i prev-j)))
-         (and (> i i-start) (= j j-start)) (max (mget p2p-dist i j)
-                                                (mget CA prev-i j))
-         (and (= i i-start) (> j j-start)) (max (mget p2p-dist i-start j)
-                                                (mget CA i prev-j))
-         (and (= i i-start) (= j j-start)) (mget p2p-dist i j))]]
+           :let [prev-i (dec i)
+                 prev-j (dec j)
+                 value (cond
+                        (and (> i i-start) (> j j-start)) (max (mget p2p-dist i j)
+                                                               (min (mget CA prev-i j)
+                                                                    (mget CA prev-i prev-j)
+                                                                    (mget CA i prev-j)))
+                        (and (> i i-start) (= j j-start)) (max (mget p2p-dist i j)
+                                                               (mget CA prev-i j))
+                        (and (= i i-start) (> j j-start)) (max (mget p2p-dist i-start j)
+                                                               (mget CA i prev-j))
+                        (and (= i i-start) (= j j-start)) (mget p2p-dist i j))]]
        (mset! CA i j value))))
 
 (defn link-matrix
@@ -76,4 +76,3 @@
          (and (> i i-start) (= j j-start)) (recur prev-i j (conj! path [i j]))
          (and (= i i-start) (> j j-start)) (recur i prev-j (conj! path [i j]))
          (and (= i i-start) (= j j-start)) (reverse (persistent! (conj! path [i-start j-start]))))))))
-
