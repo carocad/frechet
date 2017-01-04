@@ -1,7 +1,7 @@
 (ns frechet-dist.sampler-test
   (:require [frechet-dist.core :as frechet]
-            [frechet-dist.sampler :refer [refine]]
-            [clojure.core.matrix :refer [distance]]
+            [frechet-dist.sampler :as sampler]
+            [clojure.core.matrix :as matrix]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop]
@@ -28,10 +28,11 @@
   1000; tries
   (prop/for-all [P curve
                  Q curve]
-    (let [distPij     (apply max (map distance P (rest P)))
-          distQij     (apply max (map distance Q (rest Q)))
+    (let [distPij     (apply max (map matrix/distance P (rest P)))
+          distQij     (apply max (map matrix/distance Q (rest Q)))
           D-max       (max distPij distQij)]
-      (>= (:dist (frechet/distance P Q))
-          (:dist (frechet/distance (refine P (/ D-max 3))
-                                   (refine Q (/ D-max 3))))))))
+      (>= (:dist (frechet/distance P Q frechet/euclidean))
+          (:dist (frechet/distance (sampler/refine P (/ D-max 3))
+                                   (sampler/refine Q (/ D-max 3))
+                                   frechet/euclidean))))))
 ;(tc/quick-check 1000 refinement-property)

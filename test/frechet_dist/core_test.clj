@@ -32,7 +32,8 @@
   300; tries
   (prop/for-all [P curve
                  Q curve]
-    (= (:dist (frechet/distance P Q)) (:dist (frechet/distance Q P)))))
+    (= (:dist (frechet/distance P Q frechet/euclidean))
+       (:dist (frechet/distance Q P frechet/euclidean)))))
 ;(tc/quick-check 100 simmetry-property)
 
 
@@ -47,8 +48,9 @@
   (prop/for-all [P curve
                  Q curve
                  R curve]
-                (almost<= 0.00001 (:dist (frechet/distance P Q)) (+ (:dist (frechet/distance P R))
-                                                                  (:dist (frechet/distance R Q))))))
+                (almost<= 0.00001 (:dist (frechet/distance P Q frechet/euclidean))
+                                  (+ (:dist (frechet/distance P R frechet/euclidean))
+                                     (:dist (frechet/distance R Q frechet/euclidean))))))
 ;(tc/quick-check 100 triangle-innequality)
 
 
@@ -60,7 +62,7 @@
   300; tries
   (prop/for-all [P curve
                  Q curve]
-    (let [frechet (frechet/distance P Q)]
+    (let [frechet (frechet/distance P Q frechet/euclidean)]
       (and (apply <= (map first (:couple frechet)))
            (apply <= (map second (:couple frechet)))))))
 ;(tc/quick-check 100 monotonicity-property)
@@ -72,7 +74,7 @@
 (defspec equality-property
   100; tries
   (prop/for-all [P curve]
-    (= (:dist (frechet/distance P P)) 0.0)))
+    (= (:dist (frechet/distance P P frechet/euclidean)) 0.0)))
 ;(tc/quick-check 100 equality-property)
 
 
@@ -84,6 +86,6 @@
   100; tries
   (prop/for-all [P curve
                  Q curve]
-    (and (= (first (:couple (frechet/distance P Q))) [0 0])
-         (= (last  (:couple (frechet/distance P Q))) [(last-index P) (last-index Q)]))))
+    (and (= (first (:couple (frechet/distance P Q frechet/euclidean))) [0 0])
+         (= (last  (:couple (frechet/distance P Q frechet/euclidean))) [(last-index P) (last-index Q)]))))
 ;(tc/quick-check 100 boundaries-condition)
