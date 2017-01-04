@@ -26,7 +26,8 @@
   300; tries
   (prop/for-all [P curve
                  Q curve]
-    (= (:dist (frechet/partial-distance P Q)) (:dist (frechet/partial-distance Q P)))))
+    (= (:dist (frechet/partial-distance P Q frechet/euclidean))
+       (:dist (frechet/partial-distance Q P frechet/euclidean)))))
 ;(tc/quick-check 100 partial-simmetry)
 
 
@@ -44,7 +45,7 @@
   100; tries
   (prop/for-all [P curve
                  Q curve]
-    (let [frechet (frechet/partial-distance P Q)]
+    (let [frechet (frechet/partial-distance P Q frechet/euclidean)]
       (and (apply <= (map first (:couple frechet)))
            (apply <= (map second (:couple frechet)))))))
 ;(tc/quick-check 100 monotonicity-property)
@@ -56,7 +57,7 @@
 (defspec partial-equality
   100; tries
   (prop/for-all [P curve]
-    (= (:dist (frechet/partial-distance P P)) 0.0)))
+    (= (:dist (frechet/partial-distance P P frechet/euclidean)) 0.0)))
 ;(tc/quick-check 100 equality-property)
 
 

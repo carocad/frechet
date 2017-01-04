@@ -20,12 +20,14 @@
 (def normal-distance
   (prop/for-all [P curve
                  Q curve]
-    (= (:dist (frechet/distance P Q)) (:dist (frechet/distance Q P)))))
+    (= (:dist (frechet/distance P Q frechet/euclidean))
+       (:dist (frechet/distance Q P frechet/euclidean)))))
 
 (def partial-distance
   (prop/for-all [P curve
                  Q curve]
-    (= (:dist (frechet/partial-distance P Q)) (:dist (frechet/partial-distance Q P)))))
+    (= (:dist (frechet/partial-distance P Q frechet/euclidean))
+       (:dist (frechet/partial-distance Q P frechet/euclidean)))))
 
 (def refine-distance
   (prop/for-all [P curve
@@ -33,9 +35,10 @@
     (let [distPij     (apply max (map distance P (rest P)))
           distQij     (apply max (map distance Q (rest Q)))
           D-max       (max distPij distQij)]
-      (>= (:dist (frechet/distance P Q))
+      (>= (:dist (frechet/distance P Q frechet/euclidean))
           (:dist (frechet/distance (refine P (/ D-max 3))
-                               (refine Q (/ D-max 3))))))))
+                                   (refine Q (/ D-max 3))
+                                   frechet/euclidean))))))
 
 ;; (profiler/profile :info :FRECHET (tc/quick-check 100 normal-distance))
 ;; (profiler/profile :info :PARTIAL-FRECHET (tc/quick-check 100 partial-distance))
