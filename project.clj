@@ -1,4 +1,4 @@
-(defproject frechet-dist "0.9.0"
+(defproject frechet-dist "0.10.0"
   :description "Calculate the discrete Frechet distance between two polygonal curves"
   :url "https://github.com/carocad/frechet-dist"
   :license {:name "LGPL v3"
