@@ -8,8 +8,13 @@
 ;; TODO: check viability of replacing core.matrix with a simple vector of vector
 ;; TODO: check viability of replacing the CA computation with an approach similar to
 ;;       https://github.com/LightTable/Clojure/pull/94/files))
+;; TODO: refactor library into (distance P Q), (coupling P Q) and (shortest-path P Q)
 ;; TODO: check viability of providing an N to 1 frechet distance by allocating
 ;;       a single p2p-dist and CA matrix that could be reused for the computation
+;; TODO: remove the legacy namespace, there is no need for it anymore
+;; TODO: refactor the refine function to be able to interpolate both vectors and
+;;       hash-maps (provide a protocol for it ;)
+;; TODO: refactor the README accordingly
 
 ;; reexposed here for convenience
 (def euclidean "euclidean distance for n-dimentional points" matrix/distance)
@@ -24,9 +29,7 @@
   ([P Q]
    (distance P Q proto/distance))
   ([P Q dist-fn]
-   (let [p2p-dist   (common/point-distance (matrix/coerce :vectorz P)
-                                           (matrix/coerce :vectorz Q)
-                                           dist-fn)
+   (let [p2p-dist   (common/point-distance P Q dist-fn)
          link       (common/link-matrix p2p-dist)
          coupling   (common/find-sequence (:CA link))]
      {:dist (:dist link) :couple coupling})))
@@ -40,9 +43,7 @@
   ([P Q]
    (partial-distance P Q proto/distance))
   ([P Q dist-fn]
-   (let [p2p-dist      (common/point-distance (matrix/coerce P)
-                                              (matrix/coerce Q)
-                                              dist-fn)
+   (let [p2p-dist      (common/point-distance P Q dist-fn)
          [starts ends] (partial/find-boundaries p2p-dist)
          all-bounds    (map #(apply concat %) (partial/cartesian starts ends))
          bounds        (filter partial/valid-bounds? all-bounds)
