@@ -25,14 +25,14 @@
 ; The simple discrete Frechet distance is always greater than or equal to the
 ; discrete frechet distance of the refined curves due to the smaller upper limit
 (defspec refinement-property
-  1000; tries
+  50; tries
   (prop/for-all [P curve
                  Q curve]
-    (let [distPij     (apply max (map matrix/distance P (rest P)))
-          distQij     (apply max (map matrix/distance Q (rest Q)))
-          D-max       (max distPij distQij)]
+    (let [distPij     (apply min (map matrix/distance P (rest P)))
+          distQij     (apply min (map matrix/distance Q (rest Q)))
+          D-min       (min distPij distQij)]
       (>= (:dist (frechet/distance P Q frechet/euclidean))
-          (:dist (frechet/distance (sampler/refine P (/ D-max 3))
-                                   (sampler/refine Q (/ D-max 3))
+          (:dist (frechet/distance (sampler/refine P D-min)
+                                   (sampler/refine Q D-min)
                                    frechet/euclidean))))))
-;(tc/quick-check 1000 refinement-property)
+;; (tc/quick-check 1000 refinement-property)

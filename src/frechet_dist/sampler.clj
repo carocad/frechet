@@ -1,5 +1,5 @@
 (ns frechet-dist.sampler
-  (:require [clojure.core.matrix :refer [get-row row-count distance sub add mul div]]))
+  (:require [clojure.core.matrix :refer [distance sub add mul div]]))
             ;[taoensso.timbre.profiling :refer [defnp]]))
 
 (defn- interpolate
@@ -24,8 +24,8 @@
    (let [pij-dist   (map dist-fn P (rest P))
          sampler    (fn [index dist]
                       (if (> dist epsilon)
-                        (interpolate (get-row P index) (get-row P (inc index)) (/ dist epsilon))
-                        (list (get-row P index))))
+                        (interpolate (get P index) (get P (inc index)) (/ dist epsilon))
+                        (list (get P index))))
          sampled-P  (map-indexed sampler pij-dist)]
      (conj (into [] (apply concat sampled-P))
            (peek P)))))

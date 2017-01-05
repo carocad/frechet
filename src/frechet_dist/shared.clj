@@ -8,12 +8,19 @@
   zero indexed"
   [mtx] (concat [0 0] (map dec (matrix/shape mtx))))
 
+;; TODO: this is UGLY as hell but right now is the best option to move fast
+;;       I should refactor this to provide a more elegant solution
 (defn point-distance
   "computes the distance between all the possible point combinations of the two
   curves P and Q using the dist-fn"
   [P Q dist-fn]
-  (matrix/compute-matrix :vectorz [(row-count P) (row-count Q)]
-                  (fn [ i j] (dist-fn (get-row P i) (get-row Q j)))))
+  (if (and (matrix/numerical? P) (matrix/numerical? Q))
+    (let [P2 (matrix/coerce :vectorz P)
+          Q2 (matrix/coerce :vectorz Q)]
+      (matrix/compute-matrix :vectorz [(row-count P2) (row-count Q2)]
+                  (fn [ i j] (dist-fn (get-row P2 i) (get-row Q2 j)))))
+    (matrix/compute-matrix :vectorz [(count P) (count Q)]
+                (fn [ i j] (dist-fn (get P i) (get Q j))))))
 
 (defn compute-CA!
   "mutates CA between the boundaries specified by i,j to calculate the link

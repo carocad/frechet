@@ -1,10 +1,10 @@
 (ns frechet-dist.profiler
   (:require [frechet-dist.core :as frechet]
-            [frechet-dist.sampler :refer [refine]]
+            [frechet-dist.sampler :as sampler]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop]
-            [clojure.core.matrix :refer [distance]]
+            [clojure.core.matrix :as matrix]
             [taoensso.timbre.profiling :as profiler]))
             ;[clojure.test.check.clojure-test :refer [defspec]]))
 
@@ -32,12 +32,12 @@
 (def refine-distance
   (prop/for-all [P curve
                  Q curve]
-    (let [distPij     (apply max (map distance P (rest P)))
-          distQij     (apply max (map distance Q (rest Q)))
-          D-max       (max distPij distQij)]
+    (let [distPij     (apply min (map matrix/distance P (rest P)))
+          distQij     (apply min (map matrix/distance Q (rest Q)))
+          D-min       (min distPij distQij)]
       (>= (:dist (frechet/distance P Q frechet/euclidean))
-          (:dist (frechet/distance (refine P (/ D-max 3))
-                                   (refine Q (/ D-max 3))
+          (:dist (frechet/distance (sampler/refine P D-min)
+                                   (sampler/refine Q D-min)
                                    frechet/euclidean))))))
 
 ;; (profiler/profile :info :FRECHET (tc/quick-check 100 normal-distance))
