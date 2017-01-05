@@ -28,9 +28,9 @@
   50; tries
   (prop/for-all [P curve
                  Q curve]
-    (let [distPij (apply min (map matrix/distance P (rest P)))
-          distQij (apply min (map matrix/distance Q (rest Q)))
-          epsilon (max distPij distQij)] ;; avoid getting 0 as the min distance
+    (let [avgPij (/ (reduce + (map matrix/distance P (rest P))) (- (count P) 1))
+          avgQij (/ (reduce + (map matrix/distance Q (rest Q))) (- (count P) 1))
+          epsilon (max avgPij avgQij)] ;; avoid getting 0 as the min distance
       (>= (:dist (frechet/distance P Q frechet/euclidean))
           (:dist (frechet/distance (sampler/refine P epsilon)
                                    (sampler/refine Q epsilon)
