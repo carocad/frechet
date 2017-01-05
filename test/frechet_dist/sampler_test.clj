@@ -28,11 +28,11 @@
   50; tries
   (prop/for-all [P curve
                  Q curve]
-    (let [distPij     (apply min (map matrix/distance P (rest P)))
-          distQij     (apply min (map matrix/distance Q (rest Q)))
-          D-min       (min distPij distQij)]
+    (let [distPij (apply min (map matrix/distance P (rest P)))
+          distQij (apply min (map matrix/distance Q (rest Q)))
+          epsilon (max distPij distQij)] ;; avoid getting 0 as the min distance
       (>= (:dist (frechet/distance P Q frechet/euclidean))
-          (:dist (frechet/distance (sampler/refine P D-min)
-                                   (sampler/refine Q D-min)
+          (:dist (frechet/distance (sampler/refine P epsilon)
+                                   (sampler/refine Q epsilon)
                                    frechet/euclidean))))))
 ;; (tc/quick-check 1000 refinement-property)
