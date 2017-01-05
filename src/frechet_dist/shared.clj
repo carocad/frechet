@@ -18,9 +18,9 @@
     (let [P2 (matrix/coerce :vectorz P)
           Q2 (matrix/coerce :vectorz Q)]
       (matrix/compute-matrix :vectorz [(row-count P2) (row-count Q2)]
-                  (fn [ i j] (dist-fn (get-row P2 i) (get-row Q2 j)))))
+                  (fn [i j] (dist-fn (get-row P2 i) (get-row Q2 j)))))
     (matrix/compute-matrix :vectorz [(count P) (count Q)]
-                (fn [ i j] (dist-fn (get P i) (get Q j))))))
+                (fn [i j] (dist-fn (nth P i) (nth Q j))))))
 
 (defn compute-CA!
   "mutates CA between the boundaries specified by i,j to calculate the link
