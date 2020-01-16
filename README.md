@@ -1,5 +1,5 @@
 # frechet-dist
-[![Build Status](https://travis-ci.org/carocad/frechet-dist.svg?branch=master)](https://travis-ci.org/carocad/frechet-dist)
+[![Build Status](https://travis-ci.com/carocad/math.frechet-dist.svg?branch=master)](https://travis-ci.com/carocad/math.frechet-dist)
 [![License](https://img.shields.io/badge/license-LGPL%20v3-blue.svg)](https://github.com/carocad/frechet-dist/blob/master/LICENSE)
 
 A Clojure library to calculate the discrete [Fréchet distance](https://en.wikipedia.org/wiki/Fr%C3%A9chet_distance) of two polygonal curves as
