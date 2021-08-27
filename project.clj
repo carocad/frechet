@@ -2,12 +2,11 @@
   :description "Calculate the discrete Frechet distance between two polygonal curves"
   :url "https://github.com/carocad/frechet-dist"
   :license {:name "LGPL v3"
-            :url "https://raw.githubusercontent.com/carocad/frechet-dist/master/LICENSE"}
+            :url  "https://github.com/carocad/frechet-dist/blob/master/LICENSE"}
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [net.mikera/vectorz-clj "0.43.1" :exclusions [org.clojure/clojure]]]
- :plugins [[jonase/eastwood "0.2.3"]]
-  :profiles {:dev
-             {:dependencies [[org.clojure/clojure "1.7.0"]
-                             [org.clojure/test.check "0.9.0"]
-                             ;profiler
-                             [com.taoensso/timbre "4.3.1"]]}})
+  :profiles {:dev {:dependencies [[criterium "0.4.5"]
+                                  [org.clojure/test.check "0.9.0"]]
+                   :test-selectors {:default     (fn [m] (not (some #{:benchmark} (keys m))))
+                                    :benchmark   :benchmark}
+                   :plugins [[jonase/eastwood "0.2.3"]]}})
