@@ -9,4 +9,9 @@
                                   [org.clojure/test.check "0.10.0"]]
                    :test-selectors {:default     (fn [m] (not (some #{:benchmark} (keys m))))
                                     :benchmark   :benchmark}
-                   :plugins [[jonase/eastwood "0.3.5"]]}})
+                   :plugins [[jonase/eastwood "0.3.5"]]}}
+  ;; deploy to clojars as - lein deploy releases
+  :deploy-repositories [["clojars" {:url "https://clojars.org/repo"
+                                    :username :env/clojars_username
+                                    :password :env/clojars_password
+                                    :sign-releases false}]])
