@@ -1,0 +1,42 @@
+Benchmark: Frechet distance with Euclidean metric
+x86_64 Mac OS X 11.5.2 16 cpu(s)
+OpenJDK 64-Bit Server VM 16.0.1+0
+Runtime arguments: -Dfile.encoding=UTF-8 -XX:-OmitStackTraceInFastThrow -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Dclojure.compile.path=/Users/roc1fr/Proyectos/frechet-dist/target/classes -Dfrechet-dist.version=0.11.1 -Dclojure.debug=false
+Evaluation count : 6 in 6 samples of 1 calls.
+      Execution time sample mean : 240,946254 ms
+             Execution time mean : 243,043975 ms
+Execution time sample std-deviation : 54,790808 ms
+    Execution time std-deviation : 57,510768 ms
+   Execution time lower quantile : 186,704118 ms ( 2,5%)
+   Execution time upper quantile : 303,670699 ms (97,5%)
+                   Overhead used : 13,171719 ns
+
+
+Benchmark: Partial Frechet distance with Euclidean metric
+x86_64 Mac OS X 11.5.2 16 cpu(s)
+OpenJDK 64-Bit Server VM 16.0.1+0
+Runtime arguments: -Dfile.encoding=UTF-8 -XX:-OmitStackTraceInFastThrow -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Dclojure.compile.path=/Users/roc1fr/Proyectos/frechet-dist/target/classes -Dfrechet-dist.version=0.11.1 -Dclojure.debug=false
+Evaluation count : 6 in 6 samples of 1 calls.
+      Execution time sample mean : 672,596543 ms
+             Execution time mean : 670,632318 ms
+Execution time sample std-deviation : 246,415954 ms
+    Execution time std-deviation : 283,736743 ms
+   Execution time lower quantile : 285,077686 ms ( 2,5%)
+   Execution time upper quantile : 977,760469 ms (97,5%)
+                   Overhead used : 13,171719 ns
+
+
+Benchmark: Frechet distance with interpolated points
+x86_64 Mac OS X 11.5.2 16 cpu(s)
+OpenJDK 64-Bit Server VM 16.0.1+0
+Runtime arguments: -Dfile.encoding=UTF-8 -XX:-OmitStackTraceInFastThrow -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Dclojure.compile.path=/Users/roc1fr/Proyectos/frechet-dist/target/classes -Dfrechet-dist.version=0.11.1 -Dclojure.debug=false
+Evaluation count : 6 in 6 samples of 1 calls.
+      Execution time sample mean : 6,479070 sec
+             Execution time mean : 6,386770 sec
+Execution time sample std-deviation : 4,174559 sec
+    Execution time std-deviation : 4,532561 sec
+   Execution time lower quantile : 936,649935 ms ( 2,5%)
+   Execution time upper quantile : 11,922922 sec (97,5%)
+                   Overhead used : 13,171719 ns
+
+
