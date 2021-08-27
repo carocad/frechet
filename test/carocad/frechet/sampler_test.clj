@@ -1,6 +1,6 @@
-(ns frechet-dist.sampler-test
-  (:require [frechet-dist.core :as frechet]
-            [frechet-dist.sampler :as sampler]
+(ns carocad.frechet.sampler-test
+  (:require [carocad.frechet.core :as frechet]
+            [carocad.frechet.sampler :as sampler]
             [clojure.core.matrix :as matrix]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
