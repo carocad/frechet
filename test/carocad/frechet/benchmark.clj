@@ -6,7 +6,7 @@
             [criterium.core :as criterium]
             [clojure.java.io :as io]
             [clojure.edn :as edn]
-            [carocad.frechet.core :as frechet]
+            [carocad.frechet :as frechet]
             [clojure.core.matrix :as matrix]
             [carocad.frechet.sampler :as sampler])
   (:import (java.io PushbackReader)))

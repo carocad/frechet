@@ -1,5 +1,5 @@
 (ns carocad.frechet.core-test
-  (:require [carocad.frechet.core :as frechet]
+  (:require [carocad.frechet :as frechet]
             ;[clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop]

@@ -1,5 +1,5 @@
 (ns carocad.frechet.sampler-test
-  (:require [carocad.frechet.core :as frechet]
+  (:require [carocad.frechet :as frechet]
             [carocad.frechet.sampler :as sampler]
             [clojure.core.matrix :as matrix]
             [clojure.test.check :as tc]

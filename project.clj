@@ -1,9 +1,9 @@
-(defproject net.clojars.carocad/frechet "0.11.2"
+(defproject net.clojars.carocad/frechet "0.12.0"
   :description "Calculate the discrete Frechet distance between two polygonal curves"
   :url "https://github.com/carocad/frechet-dist"
   :license {:name "LGPL v3"
             :url  "https://github.com/carocad/frechet-dist/blob/master/LICENSE"}
-  :dependencies [[org.clojure/clojure "1.7.0"]
+  :dependencies [[org.clojure/clojure "1.10.1" :scope "provided"]
                  [net.mikera/vectorz-clj "0.43.1" :exclusions [org.clojure/clojure]]]
   :profiles {:dev {:dependencies [[criterium "0.4.5"]
                                   [org.clojure/test.check "0.10.0"]]

@@ -15,12 +15,13 @@ The distance function returns a map with the discrete frechet distance (`:dist`)
 and the coupling sequence (`:couple`). The Euclidean distance is used as the
 default metric, but you can use an arbitrary distance function if you pass it
 as third argument.
+
 ```Clojure
 (ns example.core
-  (:require [carocad.frechet.core :as frechet]))
+  (:require [carocad.frechet :as frechet]))
 
-  (frechet/distance [[1 2] [3 4]]
-                    [[5 6] [7 8] [9 0]])
+(frechet/distance [[1 2] [3 4]]
+                  [[5 6] [7 8] [9 0]])
 ;;=> {:dist 7.211102550927978, :couple ([0 0] [1 1] [1 2])}
 ```
 
