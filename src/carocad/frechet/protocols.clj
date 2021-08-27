@@ -1,4 +1,4 @@
-(ns frechet-dist.protocols
+(ns carocad.frechet.protocols
   "protocols partially required for the frechet distance computations")
 
 (defprotocol Distance

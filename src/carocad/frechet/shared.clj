@@ -1,4 +1,4 @@
-(ns frechet-dist.shared
+(ns carocad.frechet.shared
   (:require [clojure.core.matrix :as matrix
              :refer [get-row row-count mget mset!]]))
             ;[taoensso.timbre.profiling :refer [defnp p]]))

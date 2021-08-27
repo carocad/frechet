@@ -1,6 +1,6 @@
-(ns frechet-dist.partial
+(ns carocad.frechet.partial
   (:require [clojure.core.matrix :refer [shape get-column get-row new-matrix mget]]
-            [frechet-dist.shared :refer [bound-zero find-sequence compute-CA!]]))
+            [carocad.frechet.shared :refer [bound-zero find-sequence compute-CA!]]))
             ;[taoensso.timbre.profiling :refer [defnp]]))
 
 (defn valid-bounds?

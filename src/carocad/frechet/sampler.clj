@@ -1,4 +1,4 @@
-(ns frechet-dist.sampler
+(ns carocad.frechet.sampler
   (:require [clojure.core.matrix :refer [distance sub add mul div]]))
             ;[taoensso.timbre.profiling :refer [defnp]]))
 

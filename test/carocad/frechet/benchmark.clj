@@ -1,4 +1,4 @@
-(ns frechet-dist.benchmark
+(ns carocad.frechet.benchmark
   (:require [clojure.test :as test]
             [clojure.test.check.properties :as properties]
             [clojure.test.check :as check]
@@ -6,9 +6,9 @@
             [criterium.core :as criterium]
             [clojure.java.io :as io]
             [clojure.edn :as edn]
-            [frechet-dist.core :as frechet]
+            [carocad.frechet.core :as frechet]
             [clojure.core.matrix :as matrix]
-            [frechet-dist.sampler :as sampler])
+            [carocad.frechet.sampler :as sampler])
   (:import (java.io PushbackReader)))
 
 (def dimension (generators/sample (generators/choose 2 5) 1))

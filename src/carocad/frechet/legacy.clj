@@ -1,4 +1,4 @@
-(ns frechet-dist.legacy
+(ns carocad.frechet.legacy
   (:require [clojure.core.matrix :as matrix :refer [get-row row-count mget mset!
                                                     compute-matrix shape immutable]]))
 

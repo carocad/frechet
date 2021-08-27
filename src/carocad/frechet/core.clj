@@ -1,8 +1,8 @@
-(ns frechet-dist.core
+(ns carocad.frechet.core
   (:require [clojure.core.matrix :as matrix]
-            [frechet-dist.partial :as partial]
-            [frechet-dist.shared :as common]
-            [frechet-dist.protocols :as proto]))
+            [carocad.frechet.partial :as partial]
+            [carocad.frechet.shared :as common]
+            [carocad.frechet.protocols :as proto]))
 
 ;; TODO: replace the generative testing with Clojure's Spec
 ;; TODO: check viability of replacing core.matrix with a simple vector of vector
@@ -22,10 +22,10 @@
 (defn distance
   "calculate the discrete frechet distance between two curves. P and Q can be
   arbirtrary sequential collections as long as either the
-  frechet-dist.protocols/distance protocol is implemented or a function to
+  carocad.frechet.protocols/distance protocol is implemented or a function to
   evaluate the distance between points is provided.
   dist-fn is an optional function used to evaluate the distance between any two
-  points of P and Q. It defaults to frechet-dist.protocols/distance"
+  points of P and Q. It defaults to carocad.frechet.protocols/distance"
   ([P Q]
    (distance P Q proto/distance))
   ([P Q dist-fn]
@@ -39,7 +39,7 @@
   calculated as the frechet distance among R and T, where R and T are the longest
   continous subcurves from P and Q that minimize the frechet distance.
   dist-fn is an optional function used to evaluate the distance between any two
-  points of P and Q. It defaults to frechet-dist.protocols/distance"
+  points of P and Q. It defaults to carocad.frechet.protocols/distance"
   ([P Q]
    (partial-distance P Q proto/distance))
   ([P Q dist-fn]

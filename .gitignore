@@ -9,6 +9,6 @@ pom.xml.asc
 /.nrepl-port
 .hgignore
 .hg/
-/frechet-dist.iml
+/frechet.iml
 /.idea/
 /.eastwood
