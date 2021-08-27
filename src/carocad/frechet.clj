@@ -1,4 +1,4 @@
-(ns carocad.frechet.core
+(ns carocad.frechet
   (:require [clojure.core.matrix :as matrix]
             [carocad.frechet.partial :as partial]
             [carocad.frechet.shared :as common]
