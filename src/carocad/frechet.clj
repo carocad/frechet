@@ -1,8 +1,7 @@
 (ns carocad.frechet
   (:require [clojure.core.matrix :as matrix]
             [carocad.frechet.partial :as partial]
-            [carocad.frechet.shared :as common]
-            [clojure.data :as data]))
+            [carocad.frechet.shared :as common]))
 
 ;; TODO: replace the generative testing with Clojure's Spec
 ;; TODO: check viability of replacing core.matrix with a simple vector of vector
@@ -20,8 +19,8 @@
 (def euclidean "euclidean distance for n-dimensional points" matrix/distance)
 
 (defn distance
-  "Compute the discrete frechet distance between two curves. P and Q can be
-  arbitrary sequential collections.
+  "Compute the discrete frechet distance between two curves. P and Q MUST be
+  vectors; as well as each point (Pi, Qi) on them. Example: [[1 2],[3 4]]
   dist-fn is a function used to evaluate the distance between any two
   points of P and Q."
   [P Q dist-fn]
@@ -31,43 +30,52 @@
     (:CA link)))
     ;{:dist (:dist link) :couple coupling}))
 
-(defn- next-row
-  [previous-row dist-fn pi Q]
-  ;; bootstrap first value due to custom rules
-  (let [init-val [(max (get previous-row 0)
-                       (dist-fn pi (get Q 0)))]]
-    (reduce (fn [current-row [diagonal above qi]]
-              (conj current-row (max (min diagonal above (peek current-row))
-                                     (dist-fn pi qi))))
-            init-val
-            (map vector previous-row ;; diagonal
-                       (rest previous-row) ;; above
-                       (rest Q))))) ;; qi i >= 1
+;(set! *warn-on-reflection* true)
+(defn euclidean2
+  [point1 point2]
+  (let [length     (dec (count point1))
+        square-sum (loop [counter 0
+                          result 0.0]
+                     (let [pow1 (get point1 counter)
+                           pow2 (get point2 counter)
+                           result (+ result (Math/pow (- pow1 pow2) 2))]
+                       (if (= counter length)
+                         result
+                         (recur (inc counter) result))))]
+    (Math/sqrt square-sum)))
 
-(defn distance2
+(defn distance4
   [P Q dist-fn]
-  (let [init-val (dist-fn (get P 0) (get Q 0))
-        init-row (reduce (fn [current-row pi]
-                           (conj current-row (max (peek current-row)
-                                                  (dist-fn pi (get Q 0)))))
-                         [init-val]
-                         (rest P))]
-    (reduce (fn [rows pi] (conj rows (next-row (peek rows) dist-fn pi Q)))
-            ;[(into [] (repeat (dec (count P)) 0))]
-            [init-row]
-            (rest P))))
+  (let [row-count    (count P)
+        column-count (count Q)
+        result       (object-array row-count)]
+    (dotimes [i row-count]
+      (let [current-row  (double-array column-count)
+            _            (aset result i current-row)
+            previous-row (aget result (max 0 (dec i)))]
+        ;init-val     (max (aget previous-row 0)
+        ;                  (dist-fn (get P i)
+        ;                           (get Q 0)))]
+        (dotimes [j column-count]
+          (let [value (max (min (aget ^doubles previous-row (max 0 (dec j)))     ;; diagonal
+                                (aget ^doubles previous-row j)                   ;; above
+                                (aget current-row (max 0 (dec j))))     ;; behind
+                           (dist-fn (get P i)
+                                    (get Q j)))]
+            (aset current-row j ^double value)))))
+    result))
 
-(let [P  [[1 2]
-          [3 4]
-          [5 6]]
-      Q  [[1 2]
-          [3 4]
-          [5 6]]]
-  (time (distance P Q euclidean))
-  (distance2 P Q euclidean))
-
-
-(map #(identity %2) (cons nil "hello") (range))
+#_(let [P  [[3 2]
+            [3 4]
+            [5 6]]
+        Q  [[1 2]
+            [3 4]
+            [5 6]]]
+    ;(time (distance P Q euclidean))
+    ;(clojure.pprint/pprint (time (distance4 P Q euclidean2)))
+    (time
+      (dotimes [_ 10000000]
+        (distance P Q euclidean))))
 
 (defn partial-distance
   "Compute the partial frechet distance among P and Q. The partial distance is
