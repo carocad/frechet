@@ -2,7 +2,7 @@
   (:require [clojure.core.matrix :as matrix]
             [carocad.frechet.partial :as partial]
             [carocad.frechet.shared :as common]
-            [carocad.frechet.protocols :as proto]))
+            [clojure.data :as data]))
 
 ;; TODO: replace the generative testing with Clojure's Spec
 ;; TODO: check viability of replacing core.matrix with a simple vector of vector
@@ -26,9 +26,48 @@
   points of P and Q."
   [P Q dist-fn]
   (let [p2p-dist   (common/point-distance P Q dist-fn)
-        link       (common/link-matrix p2p-dist)
-        coupling   (common/find-sequence (:CA link))]
-    {:dist (:dist link) :couple coupling}))
+        link       (common/link-matrix p2p-dist)]
+        ;coupling   (common/find-sequence (:CA link))]
+    (:CA link)))
+    ;{:dist (:dist link) :couple coupling}))
+
+(defn- next-row
+  [previous-row dist-fn pi Q]
+  ;; bootstrap first value due to custom rules
+  (let [init-val [(max (get previous-row 0)
+                       (dist-fn pi (get Q 0)))]]
+    (reduce (fn [current-row [diagonal above qi]]
+              (conj current-row (max (min diagonal above (peek current-row))
+                                     (dist-fn pi qi))))
+            init-val
+            (map vector previous-row ;; diagonal
+                       (rest previous-row) ;; above
+                       (rest Q))))) ;; qi i >= 1
+
+(defn distance2
+  [P Q dist-fn]
+  (let [init-val (dist-fn (get P 0) (get Q 0))
+        init-row (reduce (fn [current-row pi]
+                           (conj current-row (max (peek current-row)
+                                                  (dist-fn pi (get Q 0)))))
+                         [init-val]
+                         (rest P))]
+    (reduce (fn [rows pi] (conj rows (next-row (peek rows) dist-fn pi Q)))
+            ;[(into [] (repeat (dec (count P)) 0))]
+            [init-row]
+            (rest P))))
+
+(let [P  [[1 2]
+          [3 4]
+          [5 6]]
+      Q  [[1 2]
+          [3 4]
+          [5 6]]]
+  (time (distance P Q euclidean))
+  (distance2 P Q euclidean))
+
+
+(map #(identity %2) (cons nil "hello") (range))
 
 (defn partial-distance
   "Compute the partial frechet distance among P and Q. The partial distance is
