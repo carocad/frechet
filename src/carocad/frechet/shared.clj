@@ -42,68 +42,72 @@
                         (and (= i i-start) (= j j-start)) (matrix/mget p2p-dist i j))]]
        (matrix/mset! CA i j value))))
 
-(defn link-matrix
-  "calculate the link distance among all possible discrete parametrization
+#_(defn link-matrix
+    "calculate the link distance among all possible discrete parametrization
   of the curves P and Q using dist-fn. The discrete frechet distance is
   returned along the coupling sequence."
-  ([p2p-dist]
-   (link-matrix p2p-dist (bound-zero p2p-dist)))
-  ([p2p-dist limits]
-   ;NOTE: the size of the matrix is kept equal to p2p-dist matrix in order
-  ; to get the right index for the coupling sequence with the limits passed
-   (let [[i-start j-start i-end j-end] limits
-         [rows columns]                (matrix/shape p2p-dist)
-         CA                            (matrix/new-matrix :vectorz rows columns)]
-     (compute-CA! CA p2p-dist i-start j-start i-end j-end)
-    {:dist (matrix/mget CA i-end j-end) :CA CA})))
+    ([p2p-dist]
+     (link-matrix p2p-dist (bound-zero p2p-dist)))
+    ([p2p-dist limits]
+     ;NOTE: the size of the matrix is kept equal to p2p-dist matrix in order
+    ; to get the right index for the coupling sequence with the limits passed
+     (let [[i-start j-start i-end j-end] limits
+           [rows columns]                (matrix/shape p2p-dist)
+           CA                            (matrix/new-matrix :vectorz rows columns)]
+       (compute-CA! CA p2p-dist i-start j-start i-end j-end)
+      {:dist (matrix/mget CA i-end j-end) :CA CA})))
 
-(defn find-sequence
-  "Given a link-distance matrix CA find the path enclosed by the limits
+#_(defn find-sequence
+    "Given a link-distance matrix CA find the path enclosed by the limits
   i-start j-start i-end j-end that minimizes the distance between the two
   curves from which CA was created."
-  ([CA]
-   (find-sequence CA (bound-zero CA)))
-  ([CA [i-start j-start i-end j-end]]
-   (loop [i i-end
-          j j-end
-          path (transient [])]
-     (let [prev-i (dec i)
-           prev-j (dec j)]
-       (cond
-         (and (> i i-start) (> j j-start))
-         (let [diag (matrix/mget CA prev-i prev-j)
-               left (matrix/mget CA prev-i j)
-               top  (matrix/mget CA i prev-j)]
-           (cond
-             (and (>= left diag) (>= top diag))
-             (recur prev-i prev-j (conj! path [i j]))
+    ([CA]
+     (find-sequence CA (bound-zero CA)))
+    ([CA [i-start j-start i-end j-end]]
+     (loop [i i-end
+            j j-end
+            path (transient [])]
+       (let [prev-i (dec i)
+             prev-j (dec j)]
+         (cond
+           (and (> i i-start) (> j j-start))
+           (let [diag (matrix/mget CA prev-i prev-j)
+                 left (matrix/mget CA prev-i j)
+                 top  (matrix/mget CA i prev-j)]
+             (cond
+               (and (>= left diag) (>= top diag))
+               (recur prev-i prev-j (conj! path [i j]))
 
-             (and (>= diag left) (>= top left))
-             (recur prev-i j (conj! path [i j]))
+               (and (>= diag left) (>= top left))
+               (recur prev-i j (conj! path [i j]))
 
-             (and (>= diag top) (>= left top))
-             (recur i prev-j (conj! path [i j]))))
+               (and (>= diag top) (>= left top))
+               (recur i prev-j (conj! path [i j]))))
 
-         ;; reached the leftmost column, can only go up
-         (and (> i i-start) (= j j-start))
-         (recur prev-i j (conj! path [i j]))
+           ;; reached the leftmost column, can only go up
+           (and (> i i-start) (= j j-start))
+           (recur prev-i j (conj! path [i j]))
 
-         ;; reached the topmost row, can only go left
-         (and (= i i-start) (> j j-start))
-         (recur i prev-j (conj! path [i j]))
+           ;; reached the topmost row, can only go left
+           (and (= i i-start) (> j j-start))
+           (recur i prev-j (conj! path [i j]))
 
-         ;; reached the start. Return
-         (and (= i i-start) (= j j-start))
-         (reverse (persistent! (conj! path [i-start j-start]))))))))
+           ;; reached the start. Return
+           (and (= i i-start) (= j j-start))
+           (reverse (persistent! (conj! path [i-start j-start]))))))))
 
 (defn bounds
+  "returns a vector of [min-i min-j max-i max-j] where i and j are
+   the row and column indexes on the 2D array"
   [^objects array-2d]
   (let [max-i (dec (alength array-2d))
         max-j (dec (alength ^doubles (aget array-2d max-i)))]
     [0 0 max-i max-j]))
 
-(defn link-matrix2 ^objects
-  [P Q dist-fn]
+(defn link-matrix
+  "Given 2 curves P an Q compute the link distance between them using dist-fn.
+  Returns a 2D array of doubles."
+  ^objects [P Q dist-fn]
   (let [row-count    (count P)
         column-count (count Q)
         result       (object-array row-count)]
@@ -120,21 +124,24 @@
             (aset current-row j ^double value)))))
     result))
 
-(defn- get2d
+(defn get2D
   [CA [i j]]
   (let [row (aget ^objects CA i)]
     (aget ^doubles row j)))
 
 (defn find-sequence2
-  "Given a link-distance matrix CA find the path enclosed by the limits
+  "Given a link-distance 2D array (of doubles) CA finds the path enclosed by the limits
   i-start j-start i-end j-end that minimizes the distance between the two
   curves from which CA was created."
   [CA [i-start j-start i-end j-end]]
-  (loop [[i j] [i-end j-end]
-         path (transient [])]
+  (loop [[i j :as index] [i-end j-end]
+         path (list)]
     (let [prev-i (max i-start (dec i))
           prev-j (max j-start (dec j))]
       (if (and (= i i-start) (= j j-start)) ;; reached the start. Return
-        (reverse (persistent! (conj! path [i-start j-start])))
-        (let [previous (min-key #(get2d CA %) [prev-i prev-j] [prev-i j] [i prev-j])]
-          (recur previous (conj! path previous)))))))
+        (conj path index)
+        (let [previous (min-key #(get2D CA %)
+                                [prev-i j] ;; behind
+                                [i prev-j] ;; above
+                                [prev-i prev-j])] ;; diagonal
+          (recur previous (conj path index)))))))

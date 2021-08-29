@@ -1,16 +1,15 @@
 (ns carocad.frechet.partial
   (:require [clojure.core.matrix :as matrix]
             [carocad.frechet.shared :as common]))
-            ;[taoensso.timbre.profiling :refer [defnp]]))
 
 (defn valid-bounds?
   "check if the current bounds are valid. Valid bounds are such that the curve
-  is reduced to a minimum of two points (with zero indexed bounds)"
+  can be reduced to a minimum of two points (with zero indexed bounds)"
   [[is js ie je]]
   (and (>= (- ie is) 1) (>= (- je js) 1)))
 
 (defn- min-indexed
-  "returns the a vector [index value] where index is the position at which the
+  "returns a vector [index value] where index is the position at which the
   minimum value occurs in data."
   [data]
   (apply min-key second (map-indexed vector data)))
@@ -24,9 +23,8 @@
    (nil? j) (first (min-indexed (matrix/get-row p2p-dist i)))))
 
 (defn find-boundaries
-  "find all nearest neighbours of the start and end points of each curve,
-  including the default start and end of each curve. Only distinct start/end
-  points are returned."
+  "Given a point to point distance matrix (p2p-dist) obtained from
+   2 curves P and Q find the nearest point to P's start/end in Q (resp. from Q in P)"
   [p2p-dist]
   (let [def-start             [0 0]
         si                    [0 (nearest-point p2p-dist 0 nil)]
@@ -34,7 +32,8 @@
         [i_n j_n :as def-end] (subvec (vec (common/bound-zero p2p-dist)) 2)
         ei                    [i_n (nearest-point p2p-dist i_n nil)]
         ej                    [(nearest-point p2p-dist nil j_n) j_n]]
-    [(distinct [def-start si sj]) (distinct [def-end ei ej])]))
+    [(distinct [def-start si sj]) ;; starts
+     (distinct [def-end ei ej])])) ;; ends
 
 (defn part-curve-dist
   "calculate the link distance and the coupling sequence of all possible
