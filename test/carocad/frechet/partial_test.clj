@@ -14,7 +14,7 @@
 
 (comment
   In general the partial Frechét distance is the Frechet distance applied
-  to two subcurves taken from the original curves. Thus all the properties
+  to two sub-curves taken from the original curves. Thus all the properties
   of the Frechet distance apply\; except the boundary conditions)
 
 
@@ -32,7 +32,7 @@
 
 
 ; -------------------------------------------------------------------
-(comment The partial frechet distance is NOT a true metric, thus the triangle innequality
+(comment The partial frechet distance is NOT a true metric, thus the triangle inequality
  does not hold. This is due to the fact that the part of the curves that matches
  and from which the distance is extracted, are not necessarily the same for the
  three comparisons.)
