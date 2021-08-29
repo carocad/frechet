@@ -1,6 +1,5 @@
 (ns carocad.frechet.shared
   (:require [clojure.core.matrix :as matrix]))
-            ;[taoensso.timbre.profiling :refer [defnp p]]))
 
 (defn bound-zero
   "compute the get-bounds of a matrix (mtx) taking into account that mget is
@@ -76,9 +75,66 @@
                left (matrix/mget CA prev-i j)
                top  (matrix/mget CA i prev-j)]
            (cond
-             (and (>= left diag) (>= top diag)) (recur prev-i prev-j (conj! path [i j]))
-             (and (>= diag left) (>= top left)) (recur prev-i j (conj! path [i j]))
-             (and (>= diag top) (>= left top)) (recur i prev-j (conj! path [i j]))))
-         (and (> i i-start) (= j j-start)) (recur prev-i j (conj! path [i j]))
-         (and (= i i-start) (> j j-start)) (recur i prev-j (conj! path [i j]))
-         (and (= i i-start) (= j j-start)) (reverse (persistent! (conj! path [i-start j-start]))))))))
+             (and (>= left diag) (>= top diag))
+             (recur prev-i prev-j (conj! path [i j]))
+
+             (and (>= diag left) (>= top left))
+             (recur prev-i j (conj! path [i j]))
+
+             (and (>= diag top) (>= left top))
+             (recur i prev-j (conj! path [i j]))))
+
+         ;; reached the leftmost column, can only go up
+         (and (> i i-start) (= j j-start))
+         (recur prev-i j (conj! path [i j]))
+
+         ;; reached the topmost row, can only go left
+         (and (= i i-start) (> j j-start))
+         (recur i prev-j (conj! path [i j]))
+
+         ;; reached the start. Return
+         (and (= i i-start) (= j j-start))
+         (reverse (persistent! (conj! path [i-start j-start]))))))))
+
+(defn bounds
+  [^objects array-2d]
+  (let [max-i (dec (alength array-2d))
+        max-j (dec (alength ^doubles (aget array-2d max-i)))]
+    [0 0 max-i max-j]))
+
+(defn link-matrix2 ^objects
+  [P Q dist-fn]
+  (let [row-count    (count P)
+        column-count (count Q)
+        result       (object-array row-count)]
+    (dotimes [i row-count]
+      (let [current-row  (double-array column-count)
+            _            (aset result i current-row)
+            previous-row (aget result (max 0 (dec i)))]
+        (dotimes [j column-count]
+          (let [value (max (min (aget ^doubles previous-row (max 0 (dec j)))     ;; diagonal
+                                (aget ^doubles previous-row j)                   ;; above
+                                (aget current-row (max 0 (dec j))))     ;; behind
+                           (dist-fn (get P i)
+                                    (get Q j)))]
+            (aset current-row j ^double value)))))
+    result))
+
+(defn- get2d
+  [CA [i j]]
+  (let [row (aget ^objects CA i)]
+    (aget ^doubles row j)))
+
+(defn find-sequence2
+  "Given a link-distance matrix CA find the path enclosed by the limits
+  i-start j-start i-end j-end that minimizes the distance between the two
+  curves from which CA was created."
+  [CA [i-start j-start i-end j-end]]
+  (loop [[i j] [i-end j-end]
+         path (transient [])]
+    (let [prev-i (max i-start (dec i))
+          prev-j (max j-start (dec j))]
+      (if (and (= i i-start) (= j j-start)) ;; reached the start. Return
+        (reverse (persistent! (conj! path [i-start j-start])))
+        (let [previous (min-key #(get2d CA %) [prev-i prev-j] [prev-i j] [i prev-j])]
+          (recur previous (conj! path previous)))))))
