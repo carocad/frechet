@@ -25,10 +25,9 @@
   points of P and Q."
   [P Q dist-fn]
   (let [p2p-dist   (common/point-distance P Q dist-fn)
-        link       (common/link-matrix p2p-dist)]
-        ;coupling   (common/find-sequence (:CA link))]
-    (:CA link)))
-    ;{:dist (:dist link) :couple coupling}))
+        link       (common/link-matrix p2p-dist)
+        coupling   (common/find-sequence (:CA link))]
+    {:dist (:dist link) :couple coupling}))
 
 ;(set! *warn-on-reflection* true)
 (defn euclidean2
@@ -46,36 +45,24 @@
 
 (defn distance4
   [P Q dist-fn]
-  (let [row-count    (count P)
-        column-count (count Q)
-        result       (object-array row-count)]
-    (dotimes [i row-count]
-      (let [current-row  (double-array column-count)
-            _            (aset result i current-row)
-            previous-row (aget result (max 0 (dec i)))]
-        ;init-val     (max (aget previous-row 0)
-        ;                  (dist-fn (get P i)
-        ;                           (get Q 0)))]
-        (dotimes [j column-count]
-          (let [value (max (min (aget ^doubles previous-row (max 0 (dec j)))     ;; diagonal
-                                (aget ^doubles previous-row j)                   ;; above
-                                (aget current-row (max 0 (dec j))))     ;; behind
-                           (dist-fn (get P i)
-                                    (get Q j)))]
-            (aset current-row j ^double value)))))
-    result))
+  (let [link-matrix (common/link-matrix2 P Q dist-fn)
+        [_ _ i j :as bounds] (common/bounds link-matrix)
+        total       (aget ^doubles (aget link-matrix i) j)
+        coupling    (common/find-sequence2 link-matrix bounds)]
+    {::distance total ::couple coupling}))
 
-#_(let [P  [[3 2]
-            [3 4]
-            [5 6]]
-        Q  [[1 2]
-            [3 4]
-            [5 6]]]
-    ;(time (distance P Q euclidean))
-    ;(clojure.pprint/pprint (time (distance4 P Q euclidean2)))
-    (time
+(let [P  [[3 2]
+          [3 4]
+          [5 6]]
+      Q  [[1 2]
+          [3 4]
+          [5 6]]]
+  ;(time (distance P Q euclidean))
+  ;(newline)
+  (time (distance4 P Q euclidean2))
+  #_(time
       (dotimes [_ 10000000]
-        (distance P Q euclidean))))
+        (distance4 P Q euclidean2))))
 
 (defn partial-distance
   "Compute the partial frechet distance among P and Q. The partial distance is
