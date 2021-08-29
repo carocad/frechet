@@ -49,13 +49,13 @@
         result       (object-array row-count)]
     (doseq [i (range i-start (inc i-end))]
       (let [current-row  (double-array column-count)
-            _            (aset result i current-row)
-            previous-row (aget result (max i-start (dec i)))]
+            _            (aset result i current-row) ;; set it here to avoid edge case on [0 0]
+            previous-row ^doubles (aget result (max i-start (dec i)))]
         (doseq [j (range j-start (inc j-end))]
           (let [previous-j (max j-start (dec j))
-                value      (max (min (aget ^doubles previous-row previous-j) ;; diagonal
-                                     (aget ^doubles previous-row j) ;; above
-                                     (aget current-row previous-j)) ;; behind
+                value      (max (min (aget previous-row previous-j) ;; diagonal
+                                     (aget previous-row j) ;; above
+                                     (if (= j previous-j) ##Inf (aget current-row previous-j))) ;; behind
                                 (dist-fn (get P i)
                                          (get Q j)))]
             (aset current-row j ^double value)))))

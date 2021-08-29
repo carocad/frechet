@@ -50,5 +50,5 @@
     (let [link-matrix (common/link-matrix P Q dist-fn bounds)
           total       (common/get2D link-matrix [i j])
           coupling    (common/find-sequence link-matrix bounds)]
-      {::dist total
-       ::couple coupling})))
+      {:carocad.frechet/distance total
+       :carocad.frechet/couple coupling})))
