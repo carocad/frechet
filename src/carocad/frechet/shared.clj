@@ -55,6 +55,7 @@
           (let [previous-j (max j-start (dec j))
                 value      (max (min (aget previous-row previous-j) ;; diagonal
                                      (aget previous-row j) ;; above
+                                     ;; current-row contains only 0 after creation
                                      (if (= j previous-j) ##Inf (aget current-row previous-j))) ;; behind
                                 (dist-fn (get P i)
                                          (get Q j)))]

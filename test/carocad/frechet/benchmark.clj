@@ -21,14 +21,14 @@
 (def normal-distance
   (properties/for-all [P curve
                        Q curve]
-    (= (:dist (frechet/distance P Q frechet/euclidean))
-       (:dist (frechet/distance Q P frechet/euclidean)))))
+    (= (::frechet/distance (frechet/distance P Q frechet/euclidean))
+       (::frechet/distance (frechet/distance Q P frechet/euclidean)))))
 
 (def partial-distance
   (properties/for-all [P curve
                        Q curve]
-    (= (:dist (frechet/partial-distance P Q frechet/euclidean))
-       (:dist (frechet/partial-distance Q P frechet/euclidean)))))
+    (= (::frechet/distance (frechet/partial-distance P Q frechet/euclidean))
+       (::frechet/distance (frechet/partial-distance Q P frechet/euclidean)))))
 
 (def refine-distance
   (properties/for-all [P curve
@@ -36,10 +36,10 @@
     (let [distPij (apply min (map matrix/distance P (rest P)))
           distQij (apply min (map matrix/distance Q (rest Q)))
           D-min   (max distPij distQij)]
-      (>= (:dist (frechet/distance P Q frechet/euclidean))
-          (:dist (frechet/distance (sampler/refine P D-min)
-                                   (sampler/refine Q D-min)
-                                   frechet/euclidean))))))
+      (>= (::frechet/distance (frechet/distance P Q frechet/euclidean))
+          (::frechet/distance (frechet/distance (sampler/refine P D-min)
+                                                (sampler/refine Q D-min)
+                                                frechet/euclidean))))))
 
 (def version (with-open [reader (io/reader "project.clj")]
                (let [content (edn/read (PushbackReader. reader))]

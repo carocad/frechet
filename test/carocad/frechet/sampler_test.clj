@@ -31,8 +31,8 @@
     (let [avgPij (/ (reduce + (map matrix/distance P (rest P))) (- (count P) 1))
           avgQij (/ (reduce + (map matrix/distance Q (rest Q))) (- (count Q) 1))
           epsilon (min avgPij avgQij)] ;; avoid getting 0 as the min distance
-      (>= (:dist (frechet/distance P Q frechet/euclidean))
-          (:dist (frechet/distance (sampler/refine P epsilon)
-                                   (sampler/refine Q epsilon)
-                                   frechet/euclidean))))))
+      (>= (::frechet/distance (frechet/distance P Q frechet/euclidean))
+          (::frechet/distance (frechet/distance (sampler/refine P epsilon)
+                                                (sampler/refine Q epsilon)
+                                                frechet/euclidean))))))
 ;; (tc/quick-check 1000 refinement-property)

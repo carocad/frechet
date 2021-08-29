@@ -33,8 +33,8 @@
   300                                                       ; tries
   (prop/for-all [P curve
                  Q curve]
-    (= (:dist (frechet/distance P Q frechet/euclidean))
-       (:dist (frechet/distance Q P frechet/euclidean)))))
+    (= (::frechet/distance (frechet/distance P Q frechet/euclidean))
+       (::frechet/distance (frechet/distance Q P frechet/euclidean)))))
 ;(tc/quick-check 100 simmetry-property)
 
 
@@ -49,9 +49,9 @@
   (prop/for-all [P curve
                  Q curve
                  R curve]
-    (almost<= 0.00001 (:dist (frechet/distance P Q frechet/euclidean))
-              (+ (:dist (frechet/distance P R frechet/euclidean))
-                 (:dist (frechet/distance R Q frechet/euclidean))))))
+    (almost<= 0.00001 (::frechet/distance (frechet/distance P Q frechet/euclidean))
+              (+ (::frechet/distance (frechet/distance P R frechet/euclidean))
+                 (::frechet/distance (frechet/distance R Q frechet/euclidean))))))
 ;(tc/quick-check 100 triangle-innequality)
 
 
@@ -64,8 +64,8 @@
   (prop/for-all [P curve
                  Q curve]
     (let [frechet (frechet/distance P Q frechet/euclidean)]
-      (and (apply <= (map first (:couple frechet)))
-           (apply <= (map second (:couple frechet)))))))
+      (and (apply <= (map first (::frechet/couple frechet)))
+           (apply <= (map second (::frechet/couple frechet)))))))
 ;(tc/quick-check 100 monotonicity-property)
 
 
@@ -75,7 +75,7 @@
 (defspec equality-property
   100                                                       ; tries
   (prop/for-all [P curve]
-    (= (:dist (frechet/distance P P frechet/euclidean)) 0.0)))
+    (= (::frechet/distance (frechet/distance P P frechet/euclidean)) 0.0)))
 ;(tc/quick-check 100 equality-property)
 
 
@@ -87,8 +87,8 @@
   100                                                       ; tries
   (prop/for-all [P curve
                  Q curve]
-    (and (= (first (:couple (frechet/distance P Q frechet/euclidean))) [0 0])
-         (= (last (:couple (frechet/distance P Q frechet/euclidean))) [(last-index P) (last-index Q)]))))
+    (and (= (first (::frechet/couple (frechet/distance P Q frechet/euclidean))) [0 0])
+         (= (last (::frechet/couple (frechet/distance P Q frechet/euclidean))) [(last-index P) (last-index Q)]))))
 ;(tc/quick-check 100 boundaries-condition)
 
 (test/deftest unit-test
