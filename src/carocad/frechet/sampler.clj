@@ -1,6 +1,5 @@
 (ns carocad.frechet.sampler
   (:require [clojure.core.matrix :refer [distance sub add mul div]]))
-            ;[taoensso.timbre.profiling :refer [defnp]]))
 
 (defn- interpolate
   "returns an interpolation between the points pi and pj rounding the

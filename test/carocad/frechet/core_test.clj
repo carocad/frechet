@@ -1,9 +1,10 @@
 (ns carocad.frechet.core-test
   (:require [carocad.frechet :as frechet]
-            ;[clojure.test.check :as tc]
+    ;[clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop]
-            [clojure.test.check.clojure-test :refer [defspec]]))
+            [clojure.test.check.clojure-test :refer [defspec]]
+            [clojure.test :as test]))
 
 (def dimension (first (gen/sample (gen/choose 2 5))))
 ; a point is a collection of n-dimensional numbers
@@ -89,3 +90,13 @@
     (and (= (first (:couple (frechet/distance P Q frechet/euclidean))) [0 0])
          (= (last  (:couple (frechet/distance P Q frechet/euclidean))) [(last-index P) (last-index Q)]))))
 ;(tc/quick-check 100 boundaries-condition)
+
+(test/deftest unit-test
+  (test/testing "partial frechet distance"
+    (let [C1 [[10.0 0] [8.7 0.5] [8 1.3] [7 2.4] [7.6 2.8] [8.3 3.4] [8.9 4.0] [9 4.8] [8.3 5] [7.6 5.2] [6.4 5.8] [6.3 6.6] [7 7] [6.1 7.3] [5 7]]
+          C2 [[8.5 4.7] [7.3 5.4] [6.2 5.6] [6.4 6.6] [6.4 7] [5.8 6.7] [5.5 7.1] [4.8 6.9] [4.4 7] [3.4 8.1] [4 8.3] [3.8 7.2] [3.6 6] [3.4 4.6]]
+          result (frechet/partial-distance C1 C2 frechet/euclidean)]
+      (is (= result #:carocad.frechet.partial{:dist 0.6708203932499366,
+                                              :couple ([8 0] [9 1] [10 2] [11 3] [12 4] [13 5] [13 6] [14 7])})))))
+
+

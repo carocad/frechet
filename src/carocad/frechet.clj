@@ -9,9 +9,9 @@
   [point1 point2]
   (let [length     (dec (count point1))
         square-sum (loop [counter 0
-                          result 0.0]
-                     (let [pow1 (get point1 counter)
-                           pow2 (get point2 counter)
+                          result  0.0]
+                     (let [pow1   (get point1 counter)
+                           pow2   (get point2 counter)
                            result (+ result (Math/pow (- pow1 pow2) 2))]
                        (if (= counter length)
                          result
@@ -24,24 +24,12 @@
   dist-fn is a function used to evaluate the distance between any two
   points of P and Q."
   [P Q dist-fn]
-  (let [link-matrix (common/link-matrix P Q dist-fn)
-        [_ _ i j :as bounds] (common/bounds link-matrix)
+  (let [[_ _ i j :as bounds] [0 0 (dec (count P)) (dec (count Q))]
+        link-matrix (common/link-matrix P Q dist-fn bounds)
+        _ (clojure.pprint/pprint link-matrix)
         total       (common/get2D link-matrix [i j])
-        coupling    (common/find-sequence2 link-matrix bounds)]
+        coupling    (common/find-sequence link-matrix bounds)]
     {::distance total ::couple coupling}))
-
-#_(let [P  [[3 2]
-            [3 4]
-            [5 6]]
-        Q  [[1 2]
-            [3 4]
-            [5 6]]]
-    ;(println (time (distance P Q euclidean)))
-    ;(newline)
-    ;(println (time (distance4 P Q euclidean2)))
-    (time
-      (dotimes [_ 100000000]
-        (distance P Q euclidean))))
 
 (defn partial-distance
   "Compute the partial frechet distance among P and Q. The partial distance is
@@ -50,9 +38,26 @@
   dist-fn is a function used to evaluate the distance between any two
   points of P and Q."
   [P Q dist-fn]
-  (let [p2p-dist      (common/point-distance P Q dist-fn)
+  (let [p2p-dist     (common/point-distance P Q dist-fn)
         [starts ends] (partial/find-boundaries p2p-dist)
-        all-bounds    (map #(apply concat %) (partial/cartesian starts ends))
-        bounds        (filter partial/valid-bounds? all-bounds)
-        frechets      (partial/part-curve-dist p2p-dist bounds)]
-    (apply min-key :dist frechets)))
+        all-bounds   (map #(apply concat %) (partial/cartesian starts ends))
+        valid-bounds (filter partial/valid-bounds? all-bounds)
+        frechets     (partial/part-curve-dist P Q dist-fn valid-bounds)]
+    (apply min-key ::partial/dist frechets)))
+
+
+#_(let [C1 [[10.0 0] [8.7 0.5] [8 1.3] [7 2.4] [7.6 2.8] [8.3 3.4] [8.9 4.0] [9 4.8] [8.3 5] [7.6 5.2] [6.4 5.8] [6.3 6.6] [7 7] [6.1 7.3] [5 7]]
+        C2 [[8.5 4.7] [7.3 5.4] [6.2 5.6] [6.4 6.6] [6.4 7] [5.8 6.7] [5.5 7.1] [4.8 6.9] [4.4 7] [3.4 8.1] [4 8.3] [3.8 7.2] [3.6 6] [3.4 4.6]]]
+    (distance C1 C2 euclidean))
+
+#_(let [P [[1 2]
+           [3 4]
+           [5 6]]
+        Q [[1 2]
+           [3 4]
+           [5 6]]]
+    (println (time (distance P Q euclidean)))
+    ;(newline)
+    #_(time
+        (dotimes [_ 100000000]
+          (distance P Q euclidean))))
