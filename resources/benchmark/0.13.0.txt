@@ -1,0 +1,29 @@
+Benchmark: Frechet distance with Euclidean metric
+x86_64 Mac OS X 11.5.2 16 cpu(s)
+OpenJDK 64-Bit Server VM 16.0.2+0
+Runtime arguments: -agentlib:jdwp=transport=dt_socket,address=127.0.0.1:65517,suspend=y,server=n -Dfile.encoding=UTF-8 -XX:-OmitStackTraceInFastThrow -Dclojure.compile.path=/Users/roc1fr/Proyectos/frechet-dist/target/classes -Dfrechet.version=0.12.0 -Dclojure.debug=false -Dclojure.compiler.disable-locals-clearing=true -javaagent:/Users/roc1fr/Library/Caches/JetBrains/IdeaIC2021.2/captureAgent/debugger-agent.jar
+Evaluation count : 12 in 6 samples of 2 calls.
+      Execution time sample mean : 99,608729 ms
+             Execution time mean : 98,639057 ms
+Execution time sample std-deviation : 24,800580 ms
+    Execution time std-deviation : 27,950839 ms
+   Execution time lower quantile : 66,280788 ms ( 2,5%)
+   Execution time upper quantile : 133,149832 ms (97,5%)
+                   Overhead used : 6,224216 ns
+
+
+Benchmark: Partial Frechet distance with Euclidean metric
+x86_64 Mac OS X 11.5.2 16 cpu(s)
+OpenJDK 64-Bit Server VM 16.0.2+0
+Runtime arguments: -agentlib:jdwp=transport=dt_socket,address=127.0.0.1:65517,suspend=y,server=n -Dfile.encoding=UTF-8 -XX:-OmitStackTraceInFastThrow -Dclojure.compile.path=/Users/roc1fr/Proyectos/frechet-dist/target/classes -Dfrechet.version=0.12.0 -Dclojure.debug=false -Dclojure.compiler.disable-locals-clearing=true -javaagent:/Users/roc1fr/Library/Caches/JetBrains/IdeaIC2021.2/captureAgent/debugger-agent.jar
+Evaluation count : 6 in 6 samples of 1 calls.
+      Execution time sample mean : 310,198095 ms
+             Execution time mean : 308,558333 ms
+Execution time sample std-deviation : 123,304688 ms
+    Execution time std-deviation : 124,897355 ms
+   Execution time lower quantile : 200,177540 ms ( 2,5%)
+   Execution time upper quantile : 495,931878 ms (97,5%)
+                   Overhead used : 6,224216 ns
+
+
+"Elapsed time: 44527.694082 msecs"

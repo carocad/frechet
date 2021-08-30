@@ -18,13 +18,13 @@
    2 curves P and Q find the nearest point to P's start/end in Q (resp. from Q in P)"
   [p2p-dist]
   (let [def-start [0 0]
-        si        [0 (min-index (common/row p2p-dist 0))]
-        sj        [(min-index (common/column p2p-dist 0)) 0]
+        si        [0 (min-index (common/row p2p-dist 0))]   ;; closest point in Q to P-start
+        sj        [(min-index (common/column p2p-dist 0)) 0] ;; closes point in P to Q-start
         [i_n j_n :as def-end] (subvec (common/bounds p2p-dist) 2)
-        ei        [i_n (min-index (common/row p2p-dist i_n))]
-        ej        [(min-index (common/column p2p-dist j_n)) j_n]]
+        ei        [i_n (min-index (common/row p2p-dist i_n))] ;; closest point in Q to P-end
+        ej        [(min-index (common/column p2p-dist j_n)) j_n]] ;; closest point in P to Q-end
     [(distinct [def-start si sj])                           ;; starts
-     (distinct [def-end ei ej])]))                          ;; ends
+     (distinct [def-end ej ei])]))                          ;; ends
 
 (defn cartesian
   "computes the cartesian product of two or more sequences. If only one sequence
@@ -52,6 +52,5 @@
           total       (common/get2D link-matrix [(- max-i min-i) (- max-j min-j)])
           coupling    (common/find-sequence link-matrix)]
       {:carocad.frechet/distance total
-       :carocad.frechet/couple
-       (for [[i j] coupling]
-         [(+ min-i i) (+ min-j j)])})))
+       :carocad.frechet/couple   (for [[i j] coupling]
+                                   [(+ min-i i) (+ min-j j)])})))
