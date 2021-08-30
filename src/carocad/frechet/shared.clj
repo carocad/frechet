@@ -53,14 +53,24 @@
             _            (aset result i current-row)        ;; set it here to avoid edge case on [0 0]
             previous-row ^doubles (aget result (max 0 (dec i)))]
         (dotimes [j column-count]
-          (let [previous-j (max 0 (dec j))
-                value      (max (min (aget previous-row previous-j) ;; diagonal
-                                     (aget previous-row j)  ;; above
-                                     ;; current-row contains only 0 after creation
-                                     (if (= j previous-j) ##Inf (aget current-row previous-j))) ;; behind
-                                (dist-fn (get P i)
-                                         (get Q j)))]
-            (aset current-row j ^double value)))))
+          (let [previous-j   (max 0 (dec j))
+                distancePiQj (dist-fn (get P i) (get Q j))
+                diagonal     (aget previous-row previous-j)
+                above        (aget previous-row j)
+                behind       (aget current-row previous-j)
+                current      (cond
+                               (and (not (identical? 0 i)) (not (identical? 0 j)))
+                               (max (min diagonal above behind) distancePiQj)
+
+                               (and (identical? 0 i) (not (identical? 0 j)))
+                               (max behind distancePiQj)
+
+                               (and (not (identical? 0 i)) (identical? 0 j))
+                               (max above distancePiQj)
+
+                               (and (identical? 0 i) (identical? 0 j))
+                               distancePiQj)]
+            (aset current-row j ^double current)))))
     result))
 
 (defn find-sequence

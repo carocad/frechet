@@ -1,44 +1,12 @@
 (ns carocad.frechet.benchmark
   (:require [clojure.test :as test]
-            [clojure.test.check.properties :as properties]
             [clojure.test.check :as check]
-            [clojure.test.check.generators :as generators]
             [criterium.core :as criterium]
             [clojure.java.io :as io]
             [clojure.edn :as edn]
-            [carocad.frechet :as frechet]
-            [carocad.frechet.sampler :as sampler])
+            [carocad.frechet.core-test :as fretest]
+            [carocad.frechet.partial-test :as part-fretest])
   (:import (java.io PushbackReader)))
-
-(def dimension (generators/sample (generators/choose 2 5) 1))
-; a point is a collection of n-dimensional numbers
-(def point (generators/vector (generators/double* {:infinite? false :NaN? false :min -100 :max 100})
-                              (first dimension)))
-; a curve is a collection of 2 or more points
-(def curve (generators/vector point 50 300))
-
-(def normal-distance
-  (properties/for-all [P curve
-                       Q curve]
-    (= (::frechet/distance (frechet/distance P Q frechet/euclidean))
-       (::frechet/distance (frechet/distance Q P frechet/euclidean)))))
-
-(def partial-distance
-  (properties/for-all [P curve
-                       Q curve]
-    (= (::frechet/distance (frechet/partial-distance P Q frechet/euclidean))
-       (::frechet/distance (frechet/partial-distance Q P frechet/euclidean)))))
-
-(def refine-distance
-  (properties/for-all [P curve
-                       Q curve]
-    (let [distPij (apply min (map frechet/distance P (rest P)))
-          distQij (apply min (map frechet/distance Q (rest Q)))
-          D-min   (max distPij distQij)]
-      (>= (::frechet/distance (frechet/distance P Q frechet/euclidean))
-          (::frechet/distance (frechet/distance (sampler/refine P D-min)
-                                                (sampler/refine Q D-min)
-                                                frechet/euclidean))))))
 
 (def version (with-open [reader (io/reader "project.clj")]
                (let [content (edn/read (PushbackReader. reader))]
@@ -58,7 +26,6 @@
               (newline))))))
 
 (test/deftest ^:benchmark parsing
-  (report {normal-distance "Frechet distance with Euclidean metric"
-           partial-distance "Partial Frechet distance with Euclidean metric"
-           refine-distance "Frechet distance with interpolated points"})
+  (report {fretest/symmetry-property "Frechet distance with Euclidean metric"
+           part-fretest/partial-symmetry "Partial Frechet distance with Euclidean metric"})
   (println (slurp report-filename)))
