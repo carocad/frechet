@@ -43,18 +43,19 @@
 (defn link-matrix
   "Given 2 curves P an Q compute the link distance between them using dist-fn.
   Returns a 2D array of doubles."
-  ^objects [P Q dist-fn [i-start j-start i-end j-end]]
+  ^objects
+  [P Q dist-fn]
   (let [row-count    (count P)
         column-count (count Q)
         result       (object-array row-count)]
-    (doseq [i (range i-start (inc i-end))]
+    (dotimes [i row-count]
       (let [current-row  (double-array column-count)
-            _            (aset result i current-row) ;; set it here to avoid edge case on [0 0]
-            previous-row ^doubles (aget result (max i-start (dec i)))]
-        (doseq [j (range j-start (inc j-end))]
-          (let [previous-j (max j-start (dec j))
+            _            (aset result i current-row)        ;; set it here to avoid edge case on [0 0]
+            previous-row ^doubles (aget result (max 0 (dec i)))]
+        (dotimes [j column-count]
+          (let [previous-j (max 0 (dec j))
                 value      (max (min (aget previous-row previous-j) ;; diagonal
-                                     (aget previous-row j) ;; above
+                                     (aget previous-row j)  ;; above
                                      ;; current-row contains only 0 after creation
                                      (if (= j previous-j) ##Inf (aget current-row previous-j))) ;; behind
                                 (dist-fn (get P i)
@@ -66,18 +67,20 @@
   "Given a link-distance 2D array (of doubles) CA finds the path enclosed by the limits
   i-start j-start i-end j-end that minimizes the distance between the two
   curves from which CA was created."
-  [CA [i-start j-start i-end j-end]]
-  (loop [[i j :as index] [i-end j-end]
-         path (list)]
-    (let [prev-i (max i-start (dec i))
-          prev-j (max j-start (dec j))]
-      (if (and (= i i-start) (= j j-start))                 ;; reached the start. Return
-        (conj path index)
-        (let [candidates (list [prev-i j]                   ;; behind
-                               [i prev-j]                   ;; above
-                               [prev-i prev-j])             ;; diagonal
-              previous   (apply min-key
-                                #(get2D CA %)
-                                (remove #(= index %) candidates))]
+  [^objects CA]
+  (let [max-i (dec (alength CA))
+        max-j (dec (alength ^doubles (aget CA max-i)))]
+    (loop [[i j :as index] [max-i max-j]
+           path (list)]
+      (let [prev-i (max 0 (dec i))
+            prev-j (max 0 (dec j))]
+        (if (and (= i 0) (= j 0))                           ;; reached the start. Return
+          (conj path index)
+          (let [candidates (list [prev-i j]                 ;; behind
+                                 [i prev-j]                 ;; above
+                                 [prev-i prev-j])           ;; diagonal
+                previous   (apply min-key
+                                  #(get2D CA %)
+                                  (remove #(= index %) candidates))]
 
-          (recur previous (conj path index)))))))
+            (recur previous (conj path index))))))))

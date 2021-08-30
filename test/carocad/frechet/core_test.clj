@@ -1,6 +1,5 @@
 (ns carocad.frechet.core-test
   (:require [carocad.frechet :as frechet]
-    ;[clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop]
             [clojure.test.check.clojure-test :refer [defspec]]
@@ -19,23 +18,26 @@
   "check if two numbers are almost less than or equal to. If they are less than
   then nothing is done, otherwise the relative difference is computed and
   compared with eps. Returns true if x is less than y or almost equal to it."
-  [eps x y]
-  (if (< x y) true                                          ; nothing to do if they are strictly less
-              (> eps (/ (Math/abs (- x y))
-                        (max (Math/abs x) (Math/abs y))))))
+  ([x y]
+   (almost<= 0.00001 x y))
+  ([eps ^double x ^double y]
+   (if (< x y)
+     true                                                    ; nothing to do if they are strictly less
+     (> eps (/ (Math/abs (- x y))
+               (max (Math/abs x) (Math/abs y)))))))
 
 
 ; -------------------------------------------------------------------
-; The frechet distance is simmetric, thus the order of the comparison
+; The frechet distance is symmetric, thus the order of the comparison
 ; doesn't matter for any two curves
 ; Ddf(P,Q) = Ddf(Q, P)
-(defspec simmetry-property
+(defspec symmetry-property
   300                                                       ; tries
   (prop/for-all [P curve
                  Q curve]
     (= (::frechet/distance (frechet/distance P Q frechet/euclidean))
        (::frechet/distance (frechet/distance Q P frechet/euclidean)))))
-;(tc/quick-check 100 simmetry-property)
+;(tc/quick-check 100 symmetry-property)
 
 
 ; -------------------------------------------------------------------
@@ -44,15 +46,15 @@
 ; Ddf(P,Q) <= Ddf(P,R) + Ddf(R,Q)
 ;; WARNING: due to the floating point precision problem of computers, it is
 ;;          not possible to test strict less than but rather an approximation
-(defspec triangle-innequality
+(defspec triangle-inequality
   300                                                       ; tries
   (prop/for-all [P curve
                  Q curve
                  R curve]
-    (almost<= 0.00001 (::frechet/distance (frechet/distance P Q frechet/euclidean))
+    (almost<= (::frechet/distance (frechet/distance P Q frechet/euclidean))
               (+ (::frechet/distance (frechet/distance P R frechet/euclidean))
                  (::frechet/distance (frechet/distance R Q frechet/euclidean))))))
-;(tc/quick-check 100 triangle-innequality)
+;(tc/quick-check 100 triangle-inequality)
 
 
 ; -------------------------------------------------------------------
@@ -114,14 +116,14 @@
                                                   [14 13])}))))
     (test/testing "partial frechet distance"
       (let [result (frechet/partial-distance C1 C2 frechet/euclidean)]
-        (test/is (= result #::frechet{:dist   0.6708203932499366,
-                                      :couple '([8 0]
-                                                [9 1]
-                                                [10 2]
-                                                [11 3]
-                                                [12 4]
-                                                [13 5]
-                                                [13 6]
-                                                [14 7])}))))))
+        (test/is (= result #::frechet{:distance 0.6708203932499366,
+                                      :couple   '([8 0]
+                                                  [9 1]
+                                                  [10 2]
+                                                  [11 3]
+                                                  [12 4]
+                                                  [13 5]
+                                                  [13 6]
+                                                  [14 7])}))))))
 
 

@@ -1,6 +1,5 @@
 (ns carocad.frechet.partial
-  (:require [clojure.core.matrix :as matrix]
-            [carocad.frechet.shared :as common]))
+  (:require [carocad.frechet.shared :as common]))
 
 (defn valid-bounds?
   "check if the current bounds are valid. Valid bounds are such that
@@ -18,14 +17,14 @@
   "Given a point to point distance matrix (p2p-dist) obtained from
    2 curves P and Q find the nearest point to P's start/end in Q (resp. from Q in P)"
   [p2p-dist]
-  (let [def-start             [0 0]
-        si                    [0 (min-index (common/row p2p-dist 0))]
-        sj                    [(min-index (common/column p2p-dist 0)) 0]
+  (let [def-start [0 0]
+        si        [0 (min-index (common/row p2p-dist 0))]
+        sj        [(min-index (common/column p2p-dist 0)) 0]
         [i_n j_n :as def-end] (subvec (common/bounds p2p-dist) 2)
-        ei                    [i_n (min-index (common/row p2p-dist i_n))]
-        ej                    [(min-index (common/column p2p-dist j_n)) j_n]]
-    [(distinct [def-start si sj]) ;; starts
-     (distinct [def-end ei ej])])) ;; ends
+        ei        [i_n (min-index (common/row p2p-dist i_n))]
+        ej        [(min-index (common/column p2p-dist j_n)) j_n]]
+    [(distinct [def-start si sj])                           ;; starts
+     (distinct [def-end ei ej])]))                          ;; ends
 
 (defn cartesian
   "computes the cartesian product of two or more sequences. If only one sequence
@@ -34,21 +33,25 @@
   emtpy list, since there is one way to take the cartesian product of no lists"
   ([x-coll]
    (if (empty? x-coll)
-    '(())
+     '(())
      (map list x-coll)))
   ([x-coll & colls]
-   (for [x    x-coll
-         y    (apply cartesian colls)]
-      (cons x y))))
+   (for [x x-coll
+         y (apply cartesian colls)]
+     (cons x y))))
 
 (defn part-curve-dist
   "calculate the link distance and the coupling sequence of all possible
   boundaries (all-bounds). Returns all the partial frechet distances and their
   couplings"
   [P Q dist-fn all-bounds]
-  (for [[_ _ i j :as bounds] all-bounds]
-    (let [link-matrix (common/link-matrix P Q dist-fn bounds)
-          total       (common/get2D link-matrix [i j])
-          coupling    (common/find-sequence link-matrix bounds)]
+  (for [[min-i min-j max-i max-j] all-bounds]
+    (let [P           (subvec P min-i (inc max-i))
+          Q           (subvec Q min-j (inc max-j))
+          link-matrix (common/link-matrix P Q dist-fn)
+          total       (common/get2D link-matrix [(- max-i min-i) (- max-j min-j)])
+          coupling    (common/find-sequence link-matrix)]
       {:carocad.frechet/distance total
-       :carocad.frechet/couple coupling})))
+       :carocad.frechet/couple
+       (for [[i j] coupling]
+         [(+ min-i i) (+ min-j j)])})))

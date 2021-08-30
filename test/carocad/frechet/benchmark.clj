@@ -7,7 +7,6 @@
             [clojure.java.io :as io]
             [clojure.edn :as edn]
             [carocad.frechet :as frechet]
-            [clojure.core.matrix :as matrix]
             [carocad.frechet.sampler :as sampler])
   (:import (java.io PushbackReader)))
 
@@ -33,8 +32,8 @@
 (def refine-distance
   (properties/for-all [P curve
                        Q curve]
-    (let [distPij (apply min (map matrix/distance P (rest P)))
-          distQij (apply min (map matrix/distance Q (rest Q)))
+    (let [distPij (apply min (map frechet/distance P (rest P)))
+          distQij (apply min (map frechet/distance Q (rest Q)))
           D-min   (max distPij distQij)]
       (>= (::frechet/distance (frechet/distance P Q frechet/euclidean))
           (::frechet/distance (frechet/distance (sampler/refine P D-min)
