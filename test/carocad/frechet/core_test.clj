@@ -11,7 +11,7 @@
 (def point (generator/vector (generator/double* {:infinite? false :NaN? false :min -100 :max 100})
                              dimension))
 ; a curve is a collection of 2 or more points
-(def curve (generator/vector point 3 20))
+(def curve (generator/vector point 3 300))
 
 (def last-index (comp dec count))
 

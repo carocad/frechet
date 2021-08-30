@@ -11,8 +11,8 @@
 
 (defn column
   [^objects array-2D j]
-  (let [row-count (dec (alength array-2D))
-        column    (double-array (alength (row array-2D 0)))]
+  (let [row-count (alength array-2D)
+        column    (double-array row-count)]
     (dotimes [i row-count]
       (aset column i ^double (get2D array-2D [i j])))
     column))

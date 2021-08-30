@@ -6,12 +6,12 @@
             [clojure.test.check.generators :as generator]
             [clojure.test.check.properties :as property]))
 
-(def dimension (generator/sample (generator/choose 2 5) 1))
+(def dimension (first (generator/sample (generator/choose 2 5))))
 ; a point is a collection of n-dimensional numbers
 (def point (generator/vector (generator/double* {:infinite? false :NaN? false :min -100 :max 100})
-                             (first dimension)))
+                             dimension))
 ; a curve is a collection of 2 or more points
-(def curve (generator/vector point 2 20))
+(def curve (generator/vector point 3 300))
 
 (comment
   In general the partial Frechét distance is the Frechet distance applied
@@ -69,7 +69,3 @@
     (test/is (:pass? result))
     (when (not (:pass? result))
       (pprint/pprint result))))
-
-#_(let [[P Q] [[[1.0 1.0 1.0] [1.0 1.0 1.0]]
-               [[1.0 1.0 1.0] [1.0 1.0 1.0] [1.0 1.0 1.0] [1.0 1.0 1.0]]]]
-    (frechet/partial-distance P Q frechet/euclidean))
