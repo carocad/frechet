@@ -1,16 +1,17 @@
 (ns carocad.frechet.core-test
   (:require [carocad.frechet :as frechet]
-            [clojure.test.check.generators :as gen]
-            [clojure.test.check.properties :as prop]
+            [clojure.test.check.generators :as generator]
+            [clojure.test.check.properties :as property]
             [clojure.test :as test]
-            [clojure.test.check :as check]))
+            [clojure.test.check :as check]
+            [clojure.pprint :as pprint]))
 
-(def dimension (first (gen/sample (gen/choose 2 5))))
+(def dimension (first (generator/sample (generator/choose 2 5))))
 ; a point is a collection of n-dimensional numbers
-(def point (gen/vector (gen/double* {:infinite? false :NaN? false :min -100 :max 100})
-                       dimension))
+(def point (generator/vector (generator/double* {:infinite? false :NaN? false :min -100 :max 100})
+                             dimension))
 ; a curve is a collection of 2 or more points
-(def curve (gen/vector point 3 20))
+(def curve (generator/vector point 3 20))
 
 (def last-index (comp dec count))
 
@@ -22,7 +23,7 @@
    (almost<= 0.00001 x y))
   ([eps ^double x ^double y]
    (if (< x y)
-     true                                                    ; nothing to do if they are strictly less
+     true                                                   ; nothing to do if they are strictly less
      (> eps (/ (Math/abs (- x y))
                (max (Math/abs x) (Math/abs y)))))))
 
@@ -31,8 +32,8 @@
   "The frechet distance is symmetric, thus the order of the comparison
     doesn't matter for any two curves
     Ddf(P,Q) = Ddf(Q, P)"
-  (prop/for-all [P curve
-                 Q curve]
+  (property/for-all [P curve
+                     Q curve]
     (= (::frechet/distance (frechet/distance P Q frechet/euclidean))
        (::frechet/distance (frechet/distance Q P frechet/euclidean)))))
 ;(tc/quick-check 100 symmetry-property)
@@ -44,9 +45,9 @@
     Ddf(P,Q) <= Ddf(P,R) + Ddf(R,Q)
     WARNING: due to the floating point precision problem of computers, it is
             not possible to test strict less than but rather an approximation"
-  (prop/for-all [P curve
-                 Q curve
-                 R curve]
+  (property/for-all [P curve
+                     Q curve
+                     R curve]
     (almost<= (::frechet/distance (frechet/distance P Q frechet/euclidean))
               (+ (::frechet/distance (frechet/distance P R frechet/euclidean))
                  (::frechet/distance (frechet/distance R Q frechet/euclidean))))))
@@ -57,8 +58,8 @@
   "Neither the 'dog' nor the 'man' are able to backtrace on the path they follow
     thus the coupling sequence must be monotonically increasing
     for example: ([0 0] [0 1] [1 1] [1 2])"
-  (prop/for-all [P curve
-                 Q curve]
+  (property/for-all [P curve
+                     Q curve]
     (let [frechet (frechet/distance P Q frechet/euclidean)]
       (and (apply <= (map first (::frechet/couple frechet)))
            (apply <= (map second (::frechet/couple frechet)))))))
@@ -68,7 +69,7 @@
 (def equality-property
   "If the distance of two curves is 0, then the two curves are the same
     Ddf(P,Q) = 0 if P = Q"
-  (prop/for-all [P curve]
+  (property/for-all [P curve]
     (= (::frechet/distance (frechet/distance P P frechet/euclidean)) 0.0)))
 ;(tc/quick-check 100 equality-property)
 
@@ -77,8 +78,8 @@
   "The coupling sequence MUST be such that the first and the last elements
     of both curves have to be included otherwise one of the curves was not
     traverse completely"
-  (prop/for-all [P curve
-                 Q curve]
+  (property/for-all [P curve
+                     Q curve]
     (and (= (first (::frechet/couple (frechet/distance P Q frechet/euclidean))) [0 0])
          (= (last (::frechet/couple (frechet/distance P Q frechet/euclidean))) [(last-index P) (last-index Q)]))))
 ;(tc/quick-check 100 boundaries-condition)
@@ -87,23 +88,23 @@
   (let [result (check/quick-check 300 symmetry-property)]
     (test/is (:pass? result))
     (when (not (:pass? result))
-      (clojure.pprint/pprint result)))
+      (pprint/pprint result)))
   (let [result (check/quick-check 300 triangle-inequality)]
     (test/is (:pass? result))
     (when (not (:pass? result))
-      (clojure.pprint/pprint result)))
+      (pprint/pprint result)))
   (let [result (check/quick-check 300 monotonicity-property)]
     (test/is (:pass? result))
     (when (not (:pass? result))
-      (clojure.pprint/pprint result)))
+      (pprint/pprint result)))
   (let [result (check/quick-check 300 equality-property)]
     (test/is (:pass? result))
     (when (not (:pass? result))
-      (clojure.pprint/pprint result)))
+      (pprint/pprint result)))
   (let [result (check/quick-check 300 boundaries-condition)]
     (test/is (:pass? result))
     (when (not (:pass? result))
-      (clojure.pprint/pprint result))))
+      (pprint/pprint result))))
 
 
 (test/deftest unit-test
