@@ -61,8 +61,8 @@
   (property/for-all [P curve
                      Q curve]
     (let [frechet (frechet/distance P Q frechet/euclidean)]
-      (and (apply <= (map first (::frechet/couple frechet)))
-           (apply <= (map second (::frechet/couple frechet)))))))
+      (and (apply <= (map first (::frechet/coupling frechet)))
+           (apply <= (map second (::frechet/coupling frechet)))))))
 ;(tc/quick-check 100 monotonicity-property)
 
 
@@ -80,8 +80,8 @@
     traverse completely"
   (property/for-all [P curve
                      Q curve]
-    (and (= (first (::frechet/couple (frechet/distance P Q frechet/euclidean))) [0 0])
-         (= (last (::frechet/couple (frechet/distance P Q frechet/euclidean))) [(last-index P) (last-index Q)]))))
+    (and (= (first (::frechet/coupling (frechet/distance P Q frechet/euclidean))) [0 0])
+         (= (last (::frechet/coupling (frechet/distance P Q frechet/euclidean))) [(last-index P) (last-index Q)]))))
 ;(tc/quick-check 100 boundaries-condition)
 
 (test/deftest generative-testing
@@ -113,7 +113,7 @@
     (test/testing "frechet distance"
       (let [result (frechet/distance C1 C2 frechet/euclidean)]
         (test/is (= result #::frechet{:distance 4.933558553417604,
-                                      :couple   '([0 0]
+                                      :coupling '([0 0]
                                                   [1 0]
                                                   [2 1]
                                                   [3 2]
@@ -131,7 +131,7 @@
     (test/testing "partial frechet distance"
       (let [result (frechet/partial-distance C1 C2 frechet/euclidean)]
         (test/is (= result #::frechet{:distance 0.6708203932499366,
-                                      :couple   '([8 0]
+                                      :coupling '([8 0]
                                                   [9 1]
                                                   [10 2]
                                                   [11 3]
