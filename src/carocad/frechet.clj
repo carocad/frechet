@@ -42,7 +42,10 @@
   on them. Example: [[1 2],[3 4]]
 
   - `dist-fn` is a function used to evaluate the distance between any two
-  points of P and Q."
+  points of P and Q.
+
+  WARNING: The partial-frechet distance is not a true mathematical metric. It
+  was created by me to support my thesis work. Use at your own risk 👾"
   [P Q dist-fn]
   (let [p2p-dist     (common/point-distance P Q dist-fn)
         [starts ends] (partial/find-boundaries p2p-dist)
