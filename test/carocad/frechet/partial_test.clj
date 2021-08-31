@@ -41,8 +41,8 @@
   (property/for-all [P curve
                      Q     curve]
     (let [frechet (frechet/partial-distance P Q frechet/euclidean)]
-      (and (apply <= (map first (::frechet/couple frechet)))
-           (apply <= (map second (::frechet/couple frechet)))))))
+      (and (apply <= (map first (::frechet/coupling frechet)))
+           (apply <= (map second (::frechet/coupling frechet)))))))
 ;(tc/quick-check 100 monotonicity-property)
 
 (def partial-equality
@@ -51,6 +51,14 @@
   (property/for-all [P curve]
     (= (::frechet/distance (frechet/partial-distance P P frechet/euclidean)) 0.0)))
 ;(tc/quick-check 100 equality-property)
+
+(def subcurve-inequality
+  "The partial-frechet distance is always less than or equal to the frechet distance
+  as R and T are sub-curves of P and Q"
+  (property/for-all [P curve
+                     Q curve]
+    (<= (::frechet/distance (frechet/partial-distance P Q frechet/euclidean))
+        (::frechet/distance (frechet/distance P Q frechet/euclidean)))))
 
 
 (comment The boundary condition is not fulfilled in the partial discrete Frechet
@@ -66,6 +74,10 @@
     (when (not (:pass? result))
       (pprint/pprint result)))
   (let [result (check/quick-check 300 partial-equality)]
+    (test/is (:pass? result))
+    (when (not (:pass? result))
+      (pprint/pprint result)))
+  (let [result (check/quick-check 300 subcurve-inequality)]
     (test/is (:pass? result))
     (when (not (:pass? result))
       (pprint/pprint result))))

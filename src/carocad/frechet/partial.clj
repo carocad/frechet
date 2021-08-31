@@ -52,5 +52,5 @@
           total       (common/get2D link-matrix [(- max-i min-i) (- max-j min-j)])
           coupling    (common/find-sequence link-matrix)]
       {:carocad.frechet/distance total
-       :carocad.frechet/couple   (for [[i j] coupling]
+       :carocad.frechet/coupling (for [[i j] coupling]
                                    [(+ min-i i) (+ min-j j)])})))

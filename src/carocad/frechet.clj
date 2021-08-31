@@ -19,22 +19,29 @@
     (Math/sqrt square-sum)))
 
 (defn distance
-  "Compute the discrete frechet distance between two curves. P and Q MUST be
-  vectors; as well as each point (Pi, Qi) on them. Example: [[1 2],[3 4]]
-  dist-fn is a function used to evaluate the distance between any two
-  points of P and Q."
+  "Compute the discrete frechet distance between two curves.
+
+   - `P` and `Q` MUST be vectors; as well as each point (Pi, Qi)
+   on them. Example: [[1 2],[3 4]].
+
+   - `dist-fn` is a function used to evaluate the distance between any two
+   points of P and Q."
   [P Q dist-fn]
   (let [[_ _ i j]   [0 0 (dec (count P)) (dec (count Q))]
         link-matrix (common/link-matrix P Q dist-fn)
         total       (common/get2D link-matrix [i j])
         coupling    (common/find-sequence link-matrix)]
-    {::distance total ::couple coupling}))
+    {::distance total ::coupling coupling}))
 
 (defn partial-distance
   "Compute the partial frechet distance among P and Q. The partial distance is
   calculated as the frechet distance among R and T, where R and T are the longest
   continuous sub-curves from P and Q that minimize the frechet distance.
-  dist-fn is a function used to evaluate the distance between any two
+
+  - `P` and `Q` MUST be vectors; as well as each point (Pi, Qi)
+  on them. Example: [[1 2],[3 4]]
+
+  - `dist-fn` is a function used to evaluate the distance between any two
   points of P and Q."
   [P Q dist-fn]
   (let [p2p-dist     (common/point-distance P Q dist-fn)
