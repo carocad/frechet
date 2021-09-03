@@ -6,10 +6,7 @@ branches:
     - master
     - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
 
-jdk:
-  - openjdk8
-
-language: clojure
+language: generic
 
 jobs:
   include:
@@ -17,6 +14,12 @@ jobs:
       name: Java tests
       script:
         - lein do clean, compile, check, eastwood, test
+
+    - stage: tests
+      name: JavaScript tests
+      script:
+        # lein -m cljs.main --help
+        - lein run -m cljs.main -t node -m carocad.frechet.test-runner
 
     - stage: Release
       if: tag IS present
