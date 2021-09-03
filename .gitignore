@@ -12,3 +12,4 @@ pom.xml.asc
 /frechet.iml
 /.idea/
 /.eastwood
+/.cljs_node_repl/

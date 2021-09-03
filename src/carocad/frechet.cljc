@@ -3,6 +3,8 @@
             [carocad.frechet.shared :as common]))
 
 ;(set! *warn-on-reflection* true)
+;(set! *warn-on-infer* true)
+
 (defn euclidean
   "compute the Euclidean distance between two points. Both points
   must be N dimensional"
