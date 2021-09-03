@@ -5,6 +5,7 @@
             :url  "https://github.com/carocad/frechet-dist/blob/master/LICENSE"}
   :dependencies [[org.clojure/clojure "1.10.1" :scope "provided"]
                  [org.clojure/clojurescript "1.10.758" :scope "provided"]]
+  :resource-paths [];; don't include scripts nor benchmarks in the jar
   :profiles {:dev {:dependencies [[criterium "0.4.5"]
                                   [org.clojure/test.check "0.10.0"]]
                    :test-selectors {:default     (fn [m] (not (some #{:benchmark} (keys m))))
