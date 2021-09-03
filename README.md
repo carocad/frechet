@@ -3,7 +3,7 @@
 [![Clojars Project](https://img.shields.io/clojars/v/net.clojars.carocad/frechet.svg)](https://clojars.org/net.clojars.carocad/frechet)
 [![CljDoc](https://cljdoc.org/badge/net.clojars.carocad/frechet)](https://cljdoc.org/d/net.clojars.carocad/frechet/)
 
-A Clojure library to calculate the discrete [Fréchet distance](https://en.wikipedia.org/wiki/Fr%C3%A9chet_distance)
+A Clojure(script) library to calculate the discrete [Fréchet distance](https://en.wikipedia.org/wiki/Fr%C3%A9chet_distance)
 of two polygonal curves as stated by [Eiter and Mannilla](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.90.937&rep=rep1&type=pdf).
 The curves may be N-dimensional and need not be the same length.
 
